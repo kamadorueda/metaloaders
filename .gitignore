@@ -1,0 +1,7 @@
+/dist/
+/poetry.lock
+/.envrc
+/.venv/
+/*coverage*
+/**/__pycache__
+/**/*.egg-info
