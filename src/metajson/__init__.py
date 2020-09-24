@@ -38,6 +38,7 @@ from enum import (
 from typing import (
     Any,
     NamedTuple,
+    Optional,
 )
 
 # Third party libraries
@@ -93,7 +94,7 @@ class JsonObject(NamedTuple):
     start_line: int
 
 
-def load(stream: str):
+def load(stream: str) -> JsonObject:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser='lalr',
@@ -102,14 +103,17 @@ def load(stream: str):
     )
 
     try:
-        data = parser.parse(stream)
-        return _simplify(data)
+        obj = parser.parse(stream)
     except lark.exceptions.LarkError as exc:
-        raise MetaJsonError("Unable to parse stream: {exc}")
+        raise MetaJsonError(f'Unable to parse stream: {exc}')
+    else:
+        data: JsonObject = _simplify(obj)
+        return data
 
 
-def _simplify(obj):
+def _simplify(obj: Any) -> Any:
     data: Any
+    data_type: Optional[Type]
 
     if isinstance(obj, lark.Tree):
         if obj.data == 'object':
@@ -134,10 +138,10 @@ def _simplify(obj):
             data = False
             data_type = Type.FALSE
         elif obj.data == 'string':
-            data = ast.literal_eval(obj.children[0].value)
+            data = ast.literal_eval(obj.children[0].value)  # type: ignore
             data_type = Type.STRING
         elif obj.data == 'number':
-            data = ast.literal_eval(obj.children[0].value)
+            data = ast.literal_eval(obj.children[0].value)  # type: ignore
             data_type = Type.NUMBER
         else:
             raise NotImplementedError(obj)
@@ -147,8 +151,8 @@ def _simplify(obj):
     return data if data_type is None else JsonObject(
         data=data,
         data_type=data_type,
-        end_column=obj.end_column - 1,
-        end_line=obj.end_line,
-        start_column=obj.column - 1,
-        start_line=obj.line,
+        end_column=obj.end_column - 1,  # type: ignore
+        end_line=obj.end_line,  # type: ignore
+        start_column=obj.column - 1,  # type: ignore
+        start_line=obj.line,  # type: ignore
     )

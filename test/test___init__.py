@@ -1,6 +1,8 @@
 # Standard library
 import json
-
+from typing import (
+    Any,
+)
 # Local libraries
 from metajson import (
     JsonObject,
@@ -23,7 +25,7 @@ def test_metajson_load_1() -> None:
 
 
 def test_metajson_load_2() -> None:
-    data = {
+    data: Any = {
         'a': 123,
         'b': True,
         'c': None,
