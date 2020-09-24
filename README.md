@@ -1,4 +1,4 @@
-# Python Asyncio Extensions
+# Meta-JSON
 
 [![Release](
 https://img.shields.io/pypi/v/metajson?color=success&label=Release&style=flat-square)](

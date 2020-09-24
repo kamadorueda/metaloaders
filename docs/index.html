@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.4" />
 <title>metajson API documentation</title>
-<meta name="description" content="JSON Loader with meta-data like column and line numbers …" />
+<meta name="description" content="A JSON Loader with column and line numbers …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -19,10 +19,10 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Laura &#10084;</h1>
+<h1 class="title">Package <code>metajson</code></h1>
 </header>
 <section id="section-intro">
-<p>JSON Loader with meta-data like column and line numbers.</p>
+<p>A JSON Loader with column and line numbers.</p>
 <p><a href="https://pypi.org/project/metajson"><img alt="Release" src="https://img.shields.io/pypi/v/metajson?color=success&amp;label=Release&amp;style=flat-square"></a>
 <a href="https://kamadorueda.github.io/metajson/"><img alt="Documentation" src="https://img.shields.io/badge/Documentation-click_here!-success?style=flat-square"></a>
 <a href="https://pypi.org/project/metajson"><img alt="Downloads" src="https://img.shields.io/pypi/dm/metajson?label=Downloads&amp;style=flat-square"></a>
@@ -39,9 +39,9 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L30" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L157" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;JSON Loader with meta-data like column and line numbers.
+<pre><code class="python">&#34;&#34;&#34;A JSON Loader with column and line numbers.
 
 [![Release](
 https://img.shields.io/pypi/v/metajson?color=success&amp;label=Release&amp;style=flat-square)](
@@ -71,7 +71,134 @@ https://github.com/kamadorueda/metajson/blob/latest/LICENSE.md)
     &gt;&gt;&gt; from metajson import *  # to import everything
 
 Please read the documentation bellow for more details about every function.
-&#34;&#34;&#34;</code></pre>
+&#34;&#34;&#34;
+
+# Standard library
+import ast
+from enum import (
+    Enum,
+)
+from typing import (
+    Any,
+    NamedTuple,
+    Optional,
+)
+
+# Third party libraries
+import lark
+
+
+# Constants
+GRAMMAR = r&#34;&#34;&#34;
+    ?start: value
+
+    ?value: array
+          | object
+          | number
+          | string
+          | &#34;false&#34; -&gt; false
+          | &#34;null&#34; -&gt; null
+          | &#34;true&#34; -&gt; true
+
+    array  : &#34;[&#34; [value (&#34;,&#34; value)*] &#34;]&#34;
+    object : &#34;{&#34; [pair (&#34;,&#34; pair)*] &#34;}&#34;
+    number : SIGNED_NUMBER
+    pair   : string &#34;:&#34; value
+    string : ESCAPED_STRING
+
+    %import common.ESCAPED_STRING
+    %import common.SIGNED_NUMBER
+    %import common.WS
+
+    %ignore WS
+&#34;&#34;&#34;
+
+
+class Type(Enum):
+    ARRAY: str = &#39;ARRAY&#39;
+    FALSE: str = &#39;FALSE&#39;
+    NUMBER: str = &#39;NUMBER&#39;
+    NULL: str = &#39;NULL&#39;
+    OBJECT: str = &#39;OBJECT&#39;
+    STRING: str = &#39;STRING&#39;
+    TRUE: str = &#39;TRUE&#39;
+
+
+class MetaJsonError(Exception):
+    pass
+
+
+class JsonObject(NamedTuple):
+    data: Any
+    data_type: Type
+    end_column: int
+    end_line: int
+    start_column: int
+    start_line: int
+
+
+def load(stream: str) -&gt; JsonObject:
+    parser = lark.Lark(
+        grammar=GRAMMAR,
+        parser=&#39;lalr&#39;,
+        lexer=&#39;standard&#39;,
+        propagate_positions=True,
+    )
+
+    try:
+        obj = parser.parse(stream)
+    except lark.exceptions.LarkError as exc:
+        raise MetaJsonError(f&#39;Unable to parse stream: {exc}&#39;)
+    else:
+        data: JsonObject = _simplify(obj)
+        return data
+
+
+def _simplify(obj: Any) -&gt; Any:
+    data: Any
+    data_type: Optional[Type]
+
+    if isinstance(obj, lark.Tree):
+        if obj.data == &#39;object&#39;:
+            data = dict(map(_simplify, obj.children))
+            data_type = Type.OBJECT
+        elif obj.data == &#39;array&#39;:
+            data = list(map(_simplify, obj.children))
+            data_type = Type.ARRAY
+        elif obj.data == &#39;pair&#39;:
+            data = (
+                _simplify(obj.children[0]),
+                _simplify(obj.children[1]),
+            )
+            data_type = None
+        elif obj.data == &#39;null&#39;:
+            data = None
+            data_type = Type.NULL
+        elif obj.data == &#39;true&#39;:
+            data = True
+            data_type = Type.TRUE
+        elif obj.data == &#39;false&#39;:
+            data = False
+            data_type = Type.FALSE
+        elif obj.data == &#39;string&#39;:
+            data = ast.literal_eval(obj.children[0].value)  # type: ignore
+            data_type = Type.STRING
+        elif obj.data == &#39;number&#39;:
+            data = ast.literal_eval(obj.children[0].value)  # type: ignore
+            data_type = Type.NUMBER
+        else:
+            raise NotImplementedError(obj)
+    else:
+        raise NotImplementedError(obj)
+
+    return data if data_type is None else JsonObject(
+        data=data,
+        data_type=data_type,
+        end_column=obj.end_column - 1,  # type: ignore
+        end_line=obj.end_line,  # type: ignore
+        start_column=obj.column - 1,  # type: ignore
+        start_line=obj.line,  # type: ignore
+    )</code></pre>
 </details>
 </section>
 <section>
@@ -79,8 +206,168 @@ Please read the documentation bellow for more details about every function.
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="metajson.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metajson.JsonObject" href="#metajson.JsonObject">JsonObject</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L97-L111" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def load(stream: str) -&gt; JsonObject:
+    parser = lark.Lark(
+        grammar=GRAMMAR,
+        parser=&#39;lalr&#39;,
+        lexer=&#39;standard&#39;,
+        propagate_positions=True,
+    )
+
+    try:
+        obj = parser.parse(stream)
+    except lark.exceptions.LarkError as exc:
+        raise MetaJsonError(f&#39;Unable to parse stream: {exc}&#39;)
+    else:
+        data: JsonObject = _simplify(obj)
+        return data</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="metajson.Type"><code class="flex name class">
+<span>class <span class="ident">Type</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L74-L81" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Type(Enum):
+    ARRAY: str = &#39;ARRAY&#39;
+    FALSE: str = &#39;FALSE&#39;
+    NUMBER: str = &#39;NUMBER&#39;
+    NULL: str = &#39;NULL&#39;
+    OBJECT: str = &#39;OBJECT&#39;
+    STRING: str = &#39;STRING&#39;
+    TRUE: str = &#39;TRUE&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="metajson.Type.ARRAY"><code class="name">var <span class="ident">ARRAY</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="metajson.Type.FALSE"><code class="name">var <span class="ident">FALSE</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="metajson.Type.NUMBER"><code class="name">var <span class="ident">NUMBER</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="metajson.Type.NULL"><code class="name">var <span class="ident">NULL</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="metajson.Type.OBJECT"><code class="name">var <span class="ident">OBJECT</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="metajson.Type.STRING"><code class="name">var <span class="ident">STRING</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="metajson.Type.TRUE"><code class="name">var <span class="ident">TRUE</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="metajson.MetaJsonError"><code class="flex name class">
+<span>class <span class="ident">MetaJsonError</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L84-L85" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MetaJsonError(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="metajson.JsonObject"><code class="flex name class">
+<span>class <span class="ident">JsonObject</span></span>
+<span>(</span><span>data: Any, data_type: <a title="metajson.Type" href="#metajson.Type">Type</a>, end_column: int, end_line: int, start_column: int, start_line: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>JsonObject(data, data_type, end_column, end_line, start_column, start_line)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L88-L94" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class JsonObject(NamedTuple):
+    data: Any
+    data_type: Type
+    end_column: int
+    end_line: int
+    start_column: int
+    start_line: int</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="metajson.JsonObject.data"><code class="name">var <span class="ident">data</span> : Any</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="metajson.JsonObject.data_type"><code class="name">var <span class="ident">data_type</span> : <a title="metajson.Type" href="#metajson.Type">Type</a></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+<dt id="metajson.JsonObject.end_column"><code class="name">var <span class="ident">end_column</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+<dt id="metajson.JsonObject.end_line"><code class="name">var <span class="ident">end_line</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 3</p></div>
+</dd>
+<dt id="metajson.JsonObject.start_column"><code class="name">var <span class="ident">start_column</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 4</p></div>
+</dd>
+<dt id="metajson.JsonObject.start_line"><code class="name">var <span class="ident">start_line</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 5</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -92,6 +379,41 @@ Please read the documentation bellow for more details about every function.
 </ul>
 </div>
 <ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="metajson.load" href="#metajson.load">load</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="metajson.Type" href="#metajson.Type">Type</a></code></h4>
+<ul class="two-column">
+<li><code><a title="metajson.Type.ARRAY" href="#metajson.Type.ARRAY">ARRAY</a></code></li>
+<li><code><a title="metajson.Type.FALSE" href="#metajson.Type.FALSE">FALSE</a></code></li>
+<li><code><a title="metajson.Type.NUMBER" href="#metajson.Type.NUMBER">NUMBER</a></code></li>
+<li><code><a title="metajson.Type.NULL" href="#metajson.Type.NULL">NULL</a></code></li>
+<li><code><a title="metajson.Type.OBJECT" href="#metajson.Type.OBJECT">OBJECT</a></code></li>
+<li><code><a title="metajson.Type.STRING" href="#metajson.Type.STRING">STRING</a></code></li>
+<li><code><a title="metajson.Type.TRUE" href="#metajson.Type.TRUE">TRUE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="metajson.MetaJsonError" href="#metajson.MetaJsonError">MetaJsonError</a></code></h4>
+</li>
+<li>
+<h4><code><a title="metajson.JsonObject" href="#metajson.JsonObject">JsonObject</a></code></h4>
+<ul class="two-column">
+<li><code><a title="metajson.JsonObject.data" href="#metajson.JsonObject.data">data</a></code></li>
+<li><code><a title="metajson.JsonObject.data_type" href="#metajson.JsonObject.data_type">data_type</a></code></li>
+<li><code><a title="metajson.JsonObject.end_column" href="#metajson.JsonObject.end_column">end_column</a></code></li>
+<li><code><a title="metajson.JsonObject.end_line" href="#metajson.JsonObject.end_line">end_line</a></code></li>
+<li><code><a title="metajson.JsonObject.start_column" href="#metajson.JsonObject.start_column">start_column</a></code></li>
+<li><code><a title="metajson.JsonObject.start_line" href="#metajson.JsonObject.start_line">start_line</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </nav>
 </main>

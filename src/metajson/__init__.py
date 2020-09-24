@@ -1,4 +1,4 @@
-"""JSON Loader with meta-data like column and line numbers.
+"""A JSON Loader with column and line numbers.
 
 [![Release](
 https://img.shields.io/pypi/v/metajson?color=success&label=Release&style=flat-square)](
