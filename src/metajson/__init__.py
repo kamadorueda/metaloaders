@@ -171,7 +171,7 @@ class Object(NamedTuple):
         """Simplifies the inner element so it's easier to work with."""
         data: Any
         if self.data_type is Type.ARRAY:
-            data = [val.raw() for val in self.data]
+            data = [val.raw(recursive=recursive) for val in self.data]
         elif self.data_type is Type.FALSE:
             data = self.data
         elif self.data_type is Type.NUMBER:
@@ -180,7 +180,11 @@ class Object(NamedTuple):
             data = self.data
         elif self.data_type is Type.OBJECT:
             data = {
-                key.raw(): val.raw() if recursive else val
+                key.raw(): (
+                    val.raw(recursive=recursive)
+                    if recursive
+                    else val
+                )
                 for key, val in self.data.items()
             }
         elif self.data_type is Type.STRING:
