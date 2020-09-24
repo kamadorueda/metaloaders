@@ -19,6 +19,65 @@ https://kamadorueda.github.io/metajson/)
 https://img.shields.io/pypi/l/metajson?color=success&label=License&style=flat-square)](
 https://github.com/kamadorueda/metajson/blob/latest/LICENSE.md)
 
+# Rationale
+
+At some point in your career you may deal with the problem of loading a JSON
+document with the requirement of knowing the positions (line and column) of
+the elements.
+
+Metajson deals with that for you:
+
+    >>> from metajson import load
+
+    >>> stream = \"""
+    ... {
+    ...     "test": 123
+    ... }
+    ... \"""
+
+    >>> json = load(stream)
+
+You can access the object meta-data:
+
+    >>> json.raw(recursive=True) == {'test': 123}
+        json.start_line == 2
+        json.end_line == 4
+        json.start_column == 0
+        json.end_column == 1
+
+As well as child objects meta-data:
+
+    >>> json.raw() == {
+            'test': Object(
+                data=123,
+                data_type=Type.NUMBER,
+                end_column=15,
+                end_line=3,
+                start_column=12,
+                start_line=3,
+            ),
+        }
+
+Every JSON token contains all possible metadata:
+
+    >>> data_key = Object(
+            data='test',
+            data_type=Type.STRING,
+            end_column=10,
+            end_line=3,
+            start_column=4,
+            start_line=3,
+        )
+    >>> data_val = Object(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        )
+    >>> json.data == {data_key: data_val}
+
 # Installing
 
     $ pip install metajson
@@ -71,6 +130,10 @@ GRAMMAR = r"""
 """
 
 
+class MetaJsonError(Exception):
+    """Base exception for all errors within this package."""
+
+
 class Type(Enum):
     ARRAY: str = 'ARRAY'
     FALSE: str = 'FALSE'
@@ -81,10 +144,6 @@ class Type(Enum):
     TRUE: str = 'TRUE'
 
 
-class MetaJsonError(Exception):
-    pass
-
-
 class Object(NamedTuple):
     data: Any
     data_type: Type
@@ -92,6 +151,30 @@ class Object(NamedTuple):
     end_line: int
     start_column: int
     start_line: int
+
+    def raw(self, recursive: bool = False) -> Any:
+        data: Any
+        if self.data_type is Type.ARRAY:
+            data = [val.raw() for val in self.data]
+        elif self.data_type is Type.FALSE:
+            data = self.data
+        elif self.data_type is Type.NUMBER:
+            data = self.data
+        elif self.data_type is Type.NULL:
+            data = self.data
+        elif self.data_type is Type.OBJECT:
+            data = {
+                key.raw(): val.raw() if recursive else val
+                for key, val in self.data.items()
+            }
+        elif self.data_type is Type.STRING:
+            data = self.data
+        elif self.data_type is Type.TRUE:
+            data = self.data
+        else:
+            raise NotImplementedError(data)
+
+        return data
 
 
 def load(stream: str) -> Object:

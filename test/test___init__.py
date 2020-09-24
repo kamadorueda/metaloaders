@@ -1,5 +1,8 @@
 # Standard library
-import json
+from json import (
+    dumps as dump,
+)
+import textwrap
 from typing import (
     Any,
 )
@@ -36,7 +39,7 @@ def test_metajson_load_2() -> None:
     data = [data]
     data = {"data": data}
 
-    assert load(json.dumps(data, indent=2)) == Object(
+    assert load(dump(data, indent=2)) == Object(
         data={
             Object(
                 data='data',
@@ -155,3 +158,46 @@ def test_metajson_load_2() -> None:
         start_column=0,
         start_line=1,
     )
+
+
+def test_metajson_load_3() -> None:
+    stream = textwrap.dedent("""
+    {
+        "test": 123
+    }
+    """)
+
+    json = load(stream)
+
+    assert json.start_line == 2
+    assert json.end_line == 4
+    assert json.start_column == 0
+    assert json.end_column == 1
+    assert json.raw(recursive=True) == {'test': 123}
+    assert json.raw() == {
+        'test': Object(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        ),
+    }
+    data_key = Object(
+        data='test',
+        data_type=Type.STRING,
+        end_column=10,
+        end_line=3,
+        start_column=4,
+        start_line=3,
+    )
+    data_val = Object(
+        data=123,
+        data_type=Type.NUMBER,
+        end_column=15,
+        end_line=3,
+        start_column=12,
+        start_line=3,
+    )
+    assert json.data == {data_key: data_val}

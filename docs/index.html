@@ -29,6 +29,59 @@
 <a href="https://pypi.org/project/metajson"><img alt="Status" src="https://img.shields.io/pypi/status/metajson?label=Status&amp;style=flat-square"></a>
 <a href="https://kamadorueda.github.io/metajson/"><img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-success?style=flat-square"></a>
 <a href="https://github.com/kamadorueda/metajson/blob/latest/LICENSE.md"><img alt="License" src="https://img.shields.io/pypi/l/metajson?color=success&amp;label=License&amp;style=flat-square"></a></p>
+<h1 id="rationale">Rationale</h1>
+<p>At some point in your career you may deal with the problem of loading a JSON
+document with the requirement of knowing the positions (line and column) of
+the elements.</p>
+<p>Metajson deals with that for you:</p>
+<pre><code>&gt;&gt;&gt; from metajson import load
+
+&gt;&gt;&gt; stream = """
+... {
+...     "test": 123
+... }
+... """
+
+&gt;&gt;&gt; json = load(stream)
+</code></pre>
+<p>You can access the object meta-data:</p>
+<pre><code>&gt;&gt;&gt; json.raw(recursive=True) == {'test': 123}
+    json.start_line == 2
+    json.end_line == 4
+    json.start_column == 0
+    json.end_column == 1
+</code></pre>
+<p>As well as child objects meta-data:</p>
+<pre><code>&gt;&gt;&gt; json.raw() == {
+        'test': Object(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        ),
+    }
+</code></pre>
+<p>Every JSON token contains all possible metadata:</p>
+<pre><code>&gt;&gt;&gt; data_key = Object(
+        data='test',
+        data_type=Type.STRING,
+        end_column=10,
+        end_line=3,
+        start_column=4,
+        start_line=3,
+    )
+&gt;&gt;&gt; data_val = Object(
+        data=123,
+        data_type=Type.NUMBER,
+        end_column=15,
+        end_line=3,
+        start_column=12,
+        start_line=3,
+    )
+&gt;&gt;&gt; json.data == {data_key: data_val}
+</code></pre>
 <h1 id="installing">Installing</h1>
 <pre><code>$ pip install metajson
 </code></pre>
@@ -39,7 +92,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L157" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L240" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;A JSON Loader with column and line numbers.
 
@@ -61,6 +114,65 @@ https://kamadorueda.github.io/metajson/)
 [![License](
 https://img.shields.io/pypi/l/metajson?color=success&amp;label=License&amp;style=flat-square)](
 https://github.com/kamadorueda/metajson/blob/latest/LICENSE.md)
+
+# Rationale
+
+At some point in your career you may deal with the problem of loading a JSON
+document with the requirement of knowing the positions (line and column) of
+the elements.
+
+Metajson deals with that for you:
+
+    &gt;&gt;&gt; from metajson import load
+
+    &gt;&gt;&gt; stream = \&#34;&#34;&#34;
+    ... {
+    ...     &#34;test&#34;: 123
+    ... }
+    ... \&#34;&#34;&#34;
+
+    &gt;&gt;&gt; json = load(stream)
+
+You can access the object meta-data:
+
+    &gt;&gt;&gt; json.raw(recursive=True) == {&#39;test&#39;: 123}
+        json.start_line == 2
+        json.end_line == 4
+        json.start_column == 0
+        json.end_column == 1
+
+As well as child objects meta-data:
+
+    &gt;&gt;&gt; json.raw() == {
+            &#39;test&#39;: Object(
+                data=123,
+                data_type=Type.NUMBER,
+                end_column=15,
+                end_line=3,
+                start_column=12,
+                start_line=3,
+            ),
+        }
+
+Every JSON token contains all possible metadata:
+
+    &gt;&gt;&gt; data_key = Object(
+            data=&#39;test&#39;,
+            data_type=Type.STRING,
+            end_column=10,
+            end_line=3,
+            start_column=4,
+            start_line=3,
+        )
+    &gt;&gt;&gt; data_val = Object(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        )
+    &gt;&gt;&gt; json.data == {data_key: data_val}
 
 # Installing
 
@@ -114,6 +226,10 @@ GRAMMAR = r&#34;&#34;&#34;
 &#34;&#34;&#34;
 
 
+class MetaJsonError(Exception):
+    &#34;&#34;&#34;Base exception for all errors within this package.&#34;&#34;&#34;
+
+
 class Type(Enum):
     ARRAY: str = &#39;ARRAY&#39;
     FALSE: str = &#39;FALSE&#39;
@@ -124,10 +240,6 @@ class Type(Enum):
     TRUE: str = &#39;TRUE&#39;
 
 
-class MetaJsonError(Exception):
-    pass
-
-
 class Object(NamedTuple):
     data: Any
     data_type: Type
@@ -135,6 +247,30 @@ class Object(NamedTuple):
     end_line: int
     start_column: int
     start_line: int
+
+    def raw(self, recursive: bool = False) -&gt; Any:
+        data: Any
+        if self.data_type is Type.ARRAY:
+            data = [val.raw() for val in self.data]
+        elif self.data_type is Type.FALSE:
+            data = self.data
+        elif self.data_type is Type.NUMBER:
+            data = self.data
+        elif self.data_type is Type.NULL:
+            data = self.data
+        elif self.data_type is Type.OBJECT:
+            data = {
+                key.raw(): val.raw() if recursive else val
+                for key, val in self.data.items()
+            }
+        elif self.data_type is Type.STRING:
+            data = self.data
+        elif self.data_type is Type.TRUE:
+            data = self.data
+        else:
+            raise NotImplementedError(data)
+
+        return data
 
 
 def load(stream: str) -&gt; Object:
@@ -216,7 +352,7 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L97-L111" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L180-L194" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load(stream: str) -&gt; Object:
     parser = lark.Lark(
@@ -240,6 +376,26 @@ def _simplify(obj: Any) -&gt; Any:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="metajson.MetaJsonError"><code class="flex name class">
+<span>class <span class="ident">MetaJsonError</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base exception for all errors within this package.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L133-L134" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MetaJsonError(Exception):
+    &#34;&#34;&#34;Base exception for all errors within this package.&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 <dt id="metajson.Type"><code class="flex name class">
 <span>class <span class="ident">Type</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
@@ -249,7 +405,7 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L74-L81" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L137-L144" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Type(Enum):
     ARRAY: str = &#39;ARRAY&#39;
@@ -296,26 +452,6 @@ def _simplify(obj: Any) -&gt; Any:
 </dd>
 </dl>
 </dd>
-<dt id="metajson.MetaJsonError"><code class="flex name class">
-<span>class <span class="ident">MetaJsonError</span></span>
-<span>(</span><span>...)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L84-L85" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">class MetaJsonError(Exception):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
 <dt id="metajson.Object"><code class="flex name class">
 <span>class <span class="ident">Object</span></span>
 <span>(</span><span>data: Any, data_type: <a title="metajson.Type" href="#metajson.Type">Type</a>, end_column: int, end_line: int, start_column: int, start_line: int)</span>
@@ -325,7 +461,7 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L88-L94" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L147-L177" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Object(NamedTuple):
     data: Any
@@ -333,7 +469,31 @@ def _simplify(obj: Any) -&gt; Any:
     end_column: int
     end_line: int
     start_column: int
-    start_line: int</code></pre>
+    start_line: int
+
+    def raw(self, recursive: bool = False) -&gt; Any:
+        data: Any
+        if self.data_type is Type.ARRAY:
+            data = [val.raw() for val in self.data]
+        elif self.data_type is Type.FALSE:
+            data = self.data
+        elif self.data_type is Type.NUMBER:
+            data = self.data
+        elif self.data_type is Type.NULL:
+            data = self.data
+        elif self.data_type is Type.OBJECT:
+            data = {
+                key.raw(): val.raw() if recursive else val
+                for key, val in self.data.items()
+            }
+        elif self.data_type is Type.STRING:
+            data = self.data
+        elif self.data_type is Type.TRUE:
+            data = self.data
+        else:
+            raise NotImplementedError(data)
+
+        return data</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -366,6 +526,44 @@ def _simplify(obj: Any) -&gt; Any:
 <div class="desc"><p>Alias for field number 5</p></div>
 </dd>
 </dl>
+<h3>Methods</h3>
+<dl>
+<dt id="metajson.Object.raw"><code class="name flex">
+<span>def <span class="ident">raw</span></span>(<span>self, recursive: bool = False) ‑> Any</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L155-L177" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def raw(self, recursive: bool = False) -&gt; Any:
+    data: Any
+    if self.data_type is Type.ARRAY:
+        data = [val.raw() for val in self.data]
+    elif self.data_type is Type.FALSE:
+        data = self.data
+    elif self.data_type is Type.NUMBER:
+        data = self.data
+    elif self.data_type is Type.NULL:
+        data = self.data
+    elif self.data_type is Type.OBJECT:
+        data = {
+            key.raw(): val.raw() if recursive else val
+            for key, val in self.data.items()
+        }
+    elif self.data_type is Type.STRING:
+        data = self.data
+    elif self.data_type is Type.TRUE:
+        data = self.data
+    else:
+        raise NotImplementedError(data)
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -374,6 +572,7 @@ def _simplify(obj: Any) -&gt; Any:
 <h1>Index</h1>
 <div class="toc">
 <ul>
+<li><a href="#rationale">Rationale</a></li>
 <li><a href="#installing">Installing</a></li>
 <li><a href="#using">Using</a></li>
 </ul>
@@ -387,6 +586,9 @@ def _simplify(obj: Any) -&gt; Any:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="metajson.MetaJsonError" href="#metajson.MetaJsonError">MetaJsonError</a></code></h4>
+</li>
+<li>
 <h4><code><a title="metajson.Type" href="#metajson.Type">Type</a></code></h4>
 <ul class="two-column">
 <li><code><a title="metajson.Type.ARRAY" href="#metajson.Type.ARRAY">ARRAY</a></code></li>
@@ -399,11 +601,9 @@ def _simplify(obj: Any) -&gt; Any:
 </ul>
 </li>
 <li>
-<h4><code><a title="metajson.MetaJsonError" href="#metajson.MetaJsonError">MetaJsonError</a></code></h4>
-</li>
-<li>
 <h4><code><a title="metajson.Object" href="#metajson.Object">Object</a></code></h4>
 <ul class="two-column">
+<li><code><a title="metajson.Object.raw" href="#metajson.Object.raw">raw</a></code></li>
 <li><code><a title="metajson.Object.data" href="#metajson.Object.data">data</a></code></li>
 <li><code><a title="metajson.Object.data_type" href="#metajson.Object.data_type">data_type</a></code></li>
 <li><code><a title="metajson.Object.end_column" href="#metajson.Object.end_column">end_column</a></code></li>
