@@ -25,7 +25,9 @@ At some point in your career you may deal with the problem of loading a JSON
 document with the requirement of knowing the positions (line and column) of
 the elements.
 
-Metajson deals with that for you:
+Metajson deals with that for you.
+
+Let's load a simple JSON document:
 
     >>> from metajson import load
 
@@ -37,7 +39,7 @@ Metajson deals with that for you:
 
     >>> json = load(stream)
 
-You can access the object meta-data:
+Now you can access the outer object meta-data:
 
     >>> json.raw(recursive=True) == {'test': 123}
         json.start_line == 2
@@ -47,16 +49,14 @@ You can access the object meta-data:
 
 As well as child objects meta-data:
 
-    >>> json.raw() == {
-            'test': Object(
-                data=123,
-                data_type=Type.NUMBER,
-                end_column=15,
-                end_line=3,
-                start_column=12,
-                start_line=3,
-            ),
-        }
+    >>> json.raw()['test'] == Object(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        )
 
 Every JSON token contains all possible metadata:
 
@@ -135,24 +135,40 @@ class MetaJsonError(Exception):
 
 
 class Type(Enum):
+    """Enumeration for all possible `Object` data types."""
     ARRAY: str = 'ARRAY'
+    """Indicates an array data-type: Example: `[]`"""
     FALSE: str = 'FALSE'
+    """Indicates a boolean data-type: Example: `false`"""
     NUMBER: str = 'NUMBER'
+    """Indicates a numeric data-type: Example: `123.4`"""
     NULL: str = 'NULL'
+    """Indicates a null data-type: Example: `null`"""
     OBJECT: str = 'OBJECT'
+    """Indicates an object data-type: Example: `{}`"""
     STRING: str = 'STRING'
+    """Indicates a string data-type: Example: `"example"`"""
     TRUE: str = 'TRUE'
+    """Indicates a boolean data-type: Example: `True`"""
 
 
 class Object(NamedTuple):
+    """Represents any JSON token and its metadata."""
     data: Any
+    """Contains the inner element data."""
     data_type: Type
+    """Defines the inner element type."""
     end_column: int
+    """End column for the element."""
     end_line: int
+    """End line for the element."""
     start_column: int
+    """Start column for the element."""
     start_line: int
+    """Start line for the element."""
 
     def raw(self, recursive: bool = False) -> Any:
+        """Simplifies the inner element so it's easier to work with."""
         data: Any
         if self.data_type is Type.ARRAY:
             data = [val.raw() for val in self.data]
@@ -178,6 +194,10 @@ class Object(NamedTuple):
 
 
 def load(stream: str) -> Object:
+    """Loads a string representation of a JSON document as an `Object` class.
+
+    Raises `MetaJsonError` if any parsing error occur.
+    """
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser='lalr',
