@@ -128,7 +128,7 @@ class MetaJsonError(Exception):
     pass
 
 
-class JsonObject(NamedTuple):
+class Object(NamedTuple):
     data: Any
     data_type: Type
     end_column: int
@@ -137,7 +137,7 @@ class JsonObject(NamedTuple):
     start_line: int
 
 
-def load(stream: str) -&gt; JsonObject:
+def load(stream: str) -&gt; Object:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser=&#39;lalr&#39;,
@@ -150,7 +150,7 @@ def load(stream: str) -&gt; JsonObject:
     except lark.exceptions.LarkError as exc:
         raise MetaJsonError(f&#39;Unable to parse stream: {exc}&#39;)
     else:
-        data: JsonObject = _simplify(obj)
+        data: Object = _simplify(obj)
         return data
 
 
@@ -191,7 +191,7 @@ def _simplify(obj: Any) -&gt; Any:
     else:
         raise NotImplementedError(obj)
 
-    return data if data_type is None else JsonObject(
+    return data if data_type is None else Object(
         data=data,
         data_type=data_type,
         end_column=obj.end_column - 1,  # type: ignore
@@ -209,7 +209,7 @@ def _simplify(obj: Any) -&gt; Any:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="metajson.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metajson.JsonObject" href="#metajson.JsonObject">JsonObject</a></span>
+<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metajson.Object" href="#metajson.Object">Object</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -218,7 +218,7 @@ def _simplify(obj: Any) -&gt; Any:
 <span>Expand source code</span>
 <a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L97-L111" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def load(stream: str) -&gt; JsonObject:
+<pre><code class="python">def load(stream: str) -&gt; Object:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser=&#39;lalr&#39;,
@@ -231,7 +231,7 @@ def _simplify(obj: Any) -&gt; Any:
     except lark.exceptions.LarkError as exc:
         raise MetaJsonError(f&#39;Unable to parse stream: {exc}&#39;)
     else:
-        data: JsonObject = _simplify(obj)
+        data: Object = _simplify(obj)
         return data</code></pre>
 </details>
 </dd>
@@ -316,18 +316,18 @@ def _simplify(obj: Any) -&gt; Any:
 <li>builtins.BaseException</li>
 </ul>
 </dd>
-<dt id="metajson.JsonObject"><code class="flex name class">
-<span>class <span class="ident">JsonObject</span></span>
+<dt id="metajson.Object"><code class="flex name class">
+<span>class <span class="ident">Object</span></span>
 <span>(</span><span>data: Any, data_type: <a title="metajson.Type" href="#metajson.Type">Type</a>, end_column: int, end_line: int, start_column: int, start_line: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>JsonObject(data, data_type, end_column, end_line, start_column, start_line)</p></div>
+<div class="desc"><p>Object(data, data_type, end_column, end_line, start_column, start_line)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 <a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L88-L94" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class JsonObject(NamedTuple):
+<pre><code class="python">class Object(NamedTuple):
     data: Any
     data_type: Type
     end_column: int
@@ -341,27 +341,27 @@ def _simplify(obj: Any) -&gt; Any:
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="metajson.JsonObject.data"><code class="name">var <span class="ident">data</span> : Any</code></dt>
+<dt id="metajson.Object.data"><code class="name">var <span class="ident">data</span> : Any</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 0</p></div>
 </dd>
-<dt id="metajson.JsonObject.data_type"><code class="name">var <span class="ident">data_type</span> : <a title="metajson.Type" href="#metajson.Type">Type</a></code></dt>
+<dt id="metajson.Object.data_type"><code class="name">var <span class="ident">data_type</span> : <a title="metajson.Type" href="#metajson.Type">Type</a></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 1</p></div>
 </dd>
-<dt id="metajson.JsonObject.end_column"><code class="name">var <span class="ident">end_column</span> : int</code></dt>
+<dt id="metajson.Object.end_column"><code class="name">var <span class="ident">end_column</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 2</p></div>
 </dd>
-<dt id="metajson.JsonObject.end_line"><code class="name">var <span class="ident">end_line</span> : int</code></dt>
+<dt id="metajson.Object.end_line"><code class="name">var <span class="ident">end_line</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 3</p></div>
 </dd>
-<dt id="metajson.JsonObject.start_column"><code class="name">var <span class="ident">start_column</span> : int</code></dt>
+<dt id="metajson.Object.start_column"><code class="name">var <span class="ident">start_column</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 4</p></div>
 </dd>
-<dt id="metajson.JsonObject.start_line"><code class="name">var <span class="ident">start_line</span> : int</code></dt>
+<dt id="metajson.Object.start_line"><code class="name">var <span class="ident">start_line</span> : int</code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 5</p></div>
 </dd>
@@ -402,14 +402,14 @@ def _simplify(obj: Any) -&gt; Any:
 <h4><code><a title="metajson.MetaJsonError" href="#metajson.MetaJsonError">MetaJsonError</a></code></h4>
 </li>
 <li>
-<h4><code><a title="metajson.JsonObject" href="#metajson.JsonObject">JsonObject</a></code></h4>
+<h4><code><a title="metajson.Object" href="#metajson.Object">Object</a></code></h4>
 <ul class="two-column">
-<li><code><a title="metajson.JsonObject.data" href="#metajson.JsonObject.data">data</a></code></li>
-<li><code><a title="metajson.JsonObject.data_type" href="#metajson.JsonObject.data_type">data_type</a></code></li>
-<li><code><a title="metajson.JsonObject.end_column" href="#metajson.JsonObject.end_column">end_column</a></code></li>
-<li><code><a title="metajson.JsonObject.end_line" href="#metajson.JsonObject.end_line">end_line</a></code></li>
-<li><code><a title="metajson.JsonObject.start_column" href="#metajson.JsonObject.start_column">start_column</a></code></li>
-<li><code><a title="metajson.JsonObject.start_line" href="#metajson.JsonObject.start_line">start_line</a></code></li>
+<li><code><a title="metajson.Object.data" href="#metajson.Object.data">data</a></code></li>
+<li><code><a title="metajson.Object.data_type" href="#metajson.Object.data_type">data_type</a></code></li>
+<li><code><a title="metajson.Object.end_column" href="#metajson.Object.end_column">end_column</a></code></li>
+<li><code><a title="metajson.Object.end_line" href="#metajson.Object.end_line">end_line</a></code></li>
+<li><code><a title="metajson.Object.start_column" href="#metajson.Object.start_column">start_column</a></code></li>
+<li><code><a title="metajson.Object.start_line" href="#metajson.Object.start_line">start_line</a></code></li>
 </ul>
 </li>
 </ul>

@@ -85,7 +85,7 @@ class MetaJsonError(Exception):
     pass
 
 
-class JsonObject(NamedTuple):
+class Object(NamedTuple):
     data: Any
     data_type: Type
     end_column: int
@@ -94,7 +94,7 @@ class JsonObject(NamedTuple):
     start_line: int
 
 
-def load(stream: str) -> JsonObject:
+def load(stream: str) -> Object:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser='lalr',
@@ -107,7 +107,7 @@ def load(stream: str) -> JsonObject:
     except lark.exceptions.LarkError as exc:
         raise MetaJsonError(f'Unable to parse stream: {exc}')
     else:
-        data: JsonObject = _simplify(obj)
+        data: Object = _simplify(obj)
         return data
 
 
@@ -148,7 +148,7 @@ def _simplify(obj: Any) -> Any:
     else:
         raise NotImplementedError(obj)
 
-    return data if data_type is None else JsonObject(
+    return data if data_type is None else Object(
         data=data,
         data_type=data_type,
         end_column=obj.end_column - 1,  # type: ignore

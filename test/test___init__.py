@@ -5,7 +5,7 @@ from typing import (
 )
 # Local libraries
 from metajson import (
-    JsonObject,
+    Object,
     load,
     Type,
 )
@@ -14,7 +14,7 @@ from metajson import (
 def test_metajson_load_1() -> None:
     assert load("""
         "x"
-    """) == JsonObject(
+    """) == Object(
         data='x',
         data_type=Type.STRING,
         end_column=11,
@@ -36,38 +36,38 @@ def test_metajson_load_2() -> None:
     data = [data]
     data = {"data": data}
 
-    assert load(json.dumps(data, indent=2)) == JsonObject(
+    assert load(json.dumps(data, indent=2)) == Object(
         data={
-            JsonObject(
+            Object(
                 data='data',
                 data_type=Type.STRING,
                 end_column=8,
                 end_line=2,
                 start_column=2,
                 start_line=2,
-            ): JsonObject(
+            ): Object(
                 data=[
-                    JsonObject(
+                    Object(
                         data={
-                            JsonObject(
+                            Object(
                                 data='data',
                                 data_type=Type.STRING,
                                 end_column=12,
                                 end_line=4,
                                 start_column=6,
                                 start_line=4,
-                            ): JsonObject(
+                            ): Object(
                                 data=[
-                                    JsonObject(
+                                    Object(
                                         data={
-                                            JsonObject(
+                                            Object(
                                                 data='a',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=6,
                                                 start_column=10,
                                                 start_line=6,
-                                            ): JsonObject(
+                                            ): Object(
                                                 data=123,
                                                 data_type=Type.NUMBER,
                                                 end_column=18,
@@ -75,14 +75,14 @@ def test_metajson_load_2() -> None:
                                                 start_column=15,
                                                 start_line=6,
                                             ),
-                                            JsonObject(
+                                            Object(
                                                 data='b',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=7,
                                                 start_column=10,
                                                 start_line=7,
-                                            ): JsonObject(
+                                            ): Object(
                                                 data=True,
                                                 data_type=Type.TRUE,
                                                 end_column=19,
@@ -90,14 +90,14 @@ def test_metajson_load_2() -> None:
                                                 start_column=15,
                                                 start_line=7,
                                             ),
-                                            JsonObject(
+                                            Object(
                                                 data='c',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=8,
                                                 start_column=10,
                                                 start_line=8,
-                                            ): JsonObject(
+                                            ): Object(
                                                 data=None,
                                                 data_type=Type.NULL,
                                                 end_column=19,
@@ -105,14 +105,14 @@ def test_metajson_load_2() -> None:
                                                 start_column=15,
                                                 start_line=8,
                                             ),
-                                            JsonObject(
+                                            Object(
                                                 data='d',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=9,
                                                 start_column=10,
                                                 start_line=9,
-                                            ): JsonObject(
+                                            ): Object(
                                                 data='string',
                                                 data_type=Type.STRING,
                                                 end_column=23,
