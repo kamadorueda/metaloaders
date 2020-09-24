@@ -92,7 +92,7 @@ the elements.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L240" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L260" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;A JSON Loader with column and line numbers.
 
@@ -231,24 +231,40 @@ class MetaJsonError(Exception):
 
 
 class Type(Enum):
+    &#34;&#34;&#34;Enumeration for all possible `Object` data types.&#34;&#34;&#34;
     ARRAY: str = &#39;ARRAY&#39;
+    &#34;&#34;&#34;Indicates an array data-type: Example: `[]`&#34;&#34;&#34;
     FALSE: str = &#39;FALSE&#39;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `false`&#34;&#34;&#34;
     NUMBER: str = &#39;NUMBER&#39;
+    &#34;&#34;&#34;Indicates a numeric data-type: Example: `123.4`&#34;&#34;&#34;
     NULL: str = &#39;NULL&#39;
+    &#34;&#34;&#34;Indicates a null data-type: Example: `null`&#34;&#34;&#34;
     OBJECT: str = &#39;OBJECT&#39;
+    &#34;&#34;&#34;Indicates an object data-type: Example: `{}`&#34;&#34;&#34;
     STRING: str = &#39;STRING&#39;
+    &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
     TRUE: str = &#39;TRUE&#39;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `True`&#34;&#34;&#34;
 
 
 class Object(NamedTuple):
+    &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
     data: Any
+    &#34;&#34;&#34;Contains the inner element data.&#34;&#34;&#34;
     data_type: Type
+    &#34;&#34;&#34;Defines the inner element type.&#34;&#34;&#34;
     end_column: int
+    &#34;&#34;&#34;End column for the element.&#34;&#34;&#34;
     end_line: int
+    &#34;&#34;&#34;End line for the element.&#34;&#34;&#34;
     start_column: int
+    &#34;&#34;&#34;Start column for the element.&#34;&#34;&#34;
     start_line: int
+    &#34;&#34;&#34;Start line for the element.&#34;&#34;&#34;
 
     def raw(self, recursive: bool = False) -&gt; Any:
+        &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
         data: Any
         if self.data_type is Type.ARRAY:
             data = [val.raw() for val in self.data]
@@ -274,6 +290,10 @@ class Object(NamedTuple):
 
 
 def load(stream: str) -&gt; Object:
+    &#34;&#34;&#34;Loads a string representation of a JSON document as an `Object` class.
+
+    Raises `MetaJsonError` if any parsing error occur.
+    &#34;&#34;&#34;
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser=&#39;lalr&#39;,
@@ -348,13 +368,18 @@ def _simplify(obj: Any) -&gt; Any:
 <span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metajson.Object" href="#metajson.Object">Object</a></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Loads a string representation of a JSON document as an <code><a title="metajson.Object" href="#metajson.Object">Object</a></code> class.</p>
+<p>Raises <code><a title="metajson.MetaJsonError" href="#metajson.MetaJsonError">MetaJsonError</a></code> if any parsing error occur.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L180-L194" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L196-L214" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load(stream: str) -&gt; Object:
+    &#34;&#34;&#34;Loads a string representation of a JSON document as an `Object` class.
+
+    Raises `MetaJsonError` if any parsing error occur.
+    &#34;&#34;&#34;
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser=&#39;lalr&#39;,
@@ -401,20 +426,28 @@ def _simplify(obj: Any) -&gt; Any:
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>An enumeration.</p></div>
+<div class="desc"><p>Enumeration for all possible <code><a title="metajson.Object" href="#metajson.Object">Object</a></code> data types.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L137-L144" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L137-L152" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Type(Enum):
+    &#34;&#34;&#34;Enumeration for all possible `Object` data types.&#34;&#34;&#34;
     ARRAY: str = &#39;ARRAY&#39;
+    &#34;&#34;&#34;Indicates an array data-type: Example: `[]`&#34;&#34;&#34;
     FALSE: str = &#39;FALSE&#39;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `false`&#34;&#34;&#34;
     NUMBER: str = &#39;NUMBER&#39;
+    &#34;&#34;&#34;Indicates a numeric data-type: Example: `123.4`&#34;&#34;&#34;
     NULL: str = &#39;NULL&#39;
+    &#34;&#34;&#34;Indicates a null data-type: Example: `null`&#34;&#34;&#34;
     OBJECT: str = &#39;OBJECT&#39;
+    &#34;&#34;&#34;Indicates an object data-type: Example: `{}`&#34;&#34;&#34;
     STRING: str = &#39;STRING&#39;
-    TRUE: str = &#39;TRUE&#39;</code></pre>
+    &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
+    TRUE: str = &#39;TRUE&#39;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `True`&#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -424,31 +457,31 @@ def _simplify(obj: Any) -&gt; Any:
 <dl>
 <dt id="metajson.Type.ARRAY"><code class="name">var <span class="ident">ARRAY</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates an array data-type: Example: <code>[]</code></p></div>
 </dd>
 <dt id="metajson.Type.FALSE"><code class="name">var <span class="ident">FALSE</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates a boolean data-type: Example: <code>false</code></p></div>
 </dd>
 <dt id="metajson.Type.NUMBER"><code class="name">var <span class="ident">NUMBER</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates a numeric data-type: Example: <code>123.4</code></p></div>
 </dd>
 <dt id="metajson.Type.NULL"><code class="name">var <span class="ident">NULL</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates a null data-type: Example: <code>null</code></p></div>
 </dd>
 <dt id="metajson.Type.OBJECT"><code class="name">var <span class="ident">OBJECT</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates an object data-type: Example: <code>{}</code></p></div>
 </dd>
 <dt id="metajson.Type.STRING"><code class="name">var <span class="ident">STRING</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates a string data-type: Example: <code>"example"</code></p></div>
 </dd>
 <dt id="metajson.Type.TRUE"><code class="name">var <span class="ident">TRUE</span> : str</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Indicates a boolean data-type: Example: <code>True</code></p></div>
 </dd>
 </dl>
 </dd>
@@ -457,21 +490,29 @@ def _simplify(obj: Any) -&gt; Any:
 <span>(</span><span>data: Any, data_type: <a title="metajson.Type" href="#metajson.Type">Type</a>, end_column: int, end_line: int, start_column: int, start_line: int)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Object(data, data_type, end_column, end_line, start_column, start_line)</p></div>
+<div class="desc"><p>Represents any JSON token and its metadata.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L147-L177" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L155-L193" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Object(NamedTuple):
+    &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
     data: Any
+    &#34;&#34;&#34;Contains the inner element data.&#34;&#34;&#34;
     data_type: Type
+    &#34;&#34;&#34;Defines the inner element type.&#34;&#34;&#34;
     end_column: int
+    &#34;&#34;&#34;End column for the element.&#34;&#34;&#34;
     end_line: int
+    &#34;&#34;&#34;End line for the element.&#34;&#34;&#34;
     start_column: int
+    &#34;&#34;&#34;Start column for the element.&#34;&#34;&#34;
     start_line: int
+    &#34;&#34;&#34;Start line for the element.&#34;&#34;&#34;
 
     def raw(self, recursive: bool = False) -&gt; Any:
+        &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
         data: Any
         if self.data_type is Type.ARRAY:
             data = [val.raw() for val in self.data]
@@ -503,27 +544,27 @@ def _simplify(obj: Any) -&gt; Any:
 <dl>
 <dt id="metajson.Object.data"><code class="name">var <span class="ident">data</span> : Any</code></dt>
 <dd>
-<div class="desc"><p>Alias for field number 0</p></div>
+<div class="desc"><p>Contains the inner element data.</p></div>
 </dd>
 <dt id="metajson.Object.data_type"><code class="name">var <span class="ident">data_type</span> : <a title="metajson.Type" href="#metajson.Type">Type</a></code></dt>
 <dd>
-<div class="desc"><p>Alias for field number 1</p></div>
+<div class="desc"><p>Defines the inner element type.</p></div>
 </dd>
 <dt id="metajson.Object.end_column"><code class="name">var <span class="ident">end_column</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Alias for field number 2</p></div>
+<div class="desc"><p>End column for the element.</p></div>
 </dd>
 <dt id="metajson.Object.end_line"><code class="name">var <span class="ident">end_line</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Alias for field number 3</p></div>
+<div class="desc"><p>End line for the element.</p></div>
 </dd>
 <dt id="metajson.Object.start_column"><code class="name">var <span class="ident">start_column</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Alias for field number 4</p></div>
+<div class="desc"><p>Start column for the element.</p></div>
 </dd>
 <dt id="metajson.Object.start_line"><code class="name">var <span class="ident">start_line</span> : int</code></dt>
 <dd>
-<div class="desc"><p>Alias for field number 5</p></div>
+<div class="desc"><p>Start line for the element.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -532,13 +573,14 @@ def _simplify(obj: Any) -&gt; Any:
 <span>def <span class="ident">raw</span></span>(<span>self, recursive: bool = False) ‑> Any</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Simplifies the inner element so it's easier to work with.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L155-L177" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L170-L193" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def raw(self, recursive: bool = False) -&gt; Any:
+    &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
     data: Any
     if self.data_type is Type.ARRAY:
         data = [val.raw() for val in self.data]
