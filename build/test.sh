@@ -11,6 +11,7 @@ function main {
     --exitfirst
     --no-cov-on-fail
     --verbose
+    --verbose
   )
 
       echo '[INFO] Running tests' \
