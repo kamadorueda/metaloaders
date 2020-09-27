@@ -91,7 +91,7 @@ the elements.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L260" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L0-L263" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;A JSON Loader with column and line numbers.
 
@@ -244,7 +244,7 @@ class Type(Enum):
     STRING: str = &#39;STRING&#39;
     &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
     TRUE: str = &#39;TRUE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `True`&#34;&#34;&#34;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;
 
 
 class Object(NamedTuple):
@@ -266,7 +266,7 @@ class Object(NamedTuple):
         &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
         data: Any
         if self.data_type is Type.ARRAY:
-            data = [val.raw() for val in self.data]
+            data = [val.raw(recursive=recursive) for val in self.data]
         elif self.data_type is Type.FALSE:
             data = self.data
         elif self.data_type is Type.NUMBER:
@@ -275,7 +275,11 @@ class Object(NamedTuple):
             data = self.data
         elif self.data_type is Type.OBJECT:
             data = {
-                key.raw(): val.raw() if recursive else val
+                key.raw(): (
+                    val.raw(recursive=recursive)
+                    if recursive
+                    else val
+                )
                 for key, val in self.data.items()
             }
         elif self.data_type is Type.STRING:
@@ -296,7 +300,6 @@ def load(stream: str) -&gt; Object:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser=&#39;lalr&#39;,
-        lexer=&#39;standard&#39;,
         propagate_positions=True,
     )
 
@@ -372,7 +375,7 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L196-L214" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L200-L217" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load(stream: str) -&gt; Object:
     &#34;&#34;&#34;Loads a string representation of a JSON document as an `Object` class.
@@ -382,7 +385,6 @@ def _simplify(obj: Any) -&gt; Any:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser=&#39;lalr&#39;,
-        lexer=&#39;standard&#39;,
         propagate_positions=True,
     )
 
@@ -446,7 +448,7 @@ def _simplify(obj: Any) -&gt; Any:
     STRING: str = &#39;STRING&#39;
     &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
     TRUE: str = &#39;TRUE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `True`&#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -480,7 +482,7 @@ def _simplify(obj: Any) -&gt; Any:
 </dd>
 <dt id="metajson.Type.TRUE"><code class="name">var <span class="ident">TRUE</span> : str</code></dt>
 <dd>
-<div class="desc"><p>Indicates a boolean data-type: Example: <code>True</code></p></div>
+<div class="desc"><p>Indicates a boolean data-type: Example: <code>true</code></p></div>
 </dd>
 </dl>
 </dd>
@@ -493,7 +495,7 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L155-L193" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L155-L197" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Object(NamedTuple):
     &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
@@ -514,7 +516,7 @@ def _simplify(obj: Any) -&gt; Any:
         &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
         data: Any
         if self.data_type is Type.ARRAY:
-            data = [val.raw() for val in self.data]
+            data = [val.raw(recursive=recursive) for val in self.data]
         elif self.data_type is Type.FALSE:
             data = self.data
         elif self.data_type is Type.NUMBER:
@@ -523,7 +525,11 @@ def _simplify(obj: Any) -&gt; Any:
             data = self.data
         elif self.data_type is Type.OBJECT:
             data = {
-                key.raw(): val.raw() if recursive else val
+                key.raw(): (
+                    val.raw(recursive=recursive)
+                    if recursive
+                    else val
+                )
                 for key, val in self.data.items()
             }
         elif self.data_type is Type.STRING:
@@ -576,13 +582,13 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L170-L193" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metajson/blob/latest/src/metajson/__init__.py#L170-L197" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def raw(self, recursive: bool = False) -&gt; Any:
     &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
     data: Any
     if self.data_type is Type.ARRAY:
-        data = [val.raw() for val in self.data]
+        data = [val.raw(recursive=recursive) for val in self.data]
     elif self.data_type is Type.FALSE:
         data = self.data
     elif self.data_type is Type.NUMBER:
@@ -591,7 +597,11 @@ def _simplify(obj: Any) -&gt; Any:
         data = self.data
     elif self.data_type is Type.OBJECT:
         data = {
-            key.raw(): val.raw() if recursive else val
+            key.raw(): (
+                val.raw(recursive=recursive)
+                if recursive
+                else val
+            )
             for key, val in self.data.items()
         }
     elif self.data_type is Type.STRING:

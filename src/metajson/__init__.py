@@ -205,7 +205,6 @@ def load(stream: str) -> Object:
     parser = lark.Lark(
         grammar=GRAMMAR,
         parser='lalr',
-        lexer='standard',
         propagate_positions=True,
     )
 
