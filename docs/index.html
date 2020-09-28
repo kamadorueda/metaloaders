@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.4" />
 <title>metaloaders API documentation</title>
-<meta name="description" content="A JSON Loader with column and line numbers …" />
+<meta name="description" content="JSON/YAML loaders with column and line numbers …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,7 +22,7 @@
 <h1 class="title">Package <code>metaloaders</code></h1>
 </header>
 <section id="section-intro">
-<p>A JSON Loader with column and line numbers.</p>
+<p>JSON/YAML loaders with column and line numbers.</p>
 <p><a href="https://pypi.org/project/metaloaders"><img alt="Release" src="https://img.shields.io/pypi/v/metaloaders?color=success&amp;label=Release&amp;style=flat-square"></a>
 <a href="https://kamadorueda.github.io/metaloaders/"><img alt="Documentation" src="https://img.shields.io/badge/Documentation-click_here!-success?style=flat-square"></a>
 <a href="https://pypi.org/project/metaloaders"><img alt="Downloads" src="https://img.shields.io/pypi/dm/metaloaders?label=Downloads&amp;style=flat-square"></a>
@@ -53,7 +53,7 @@ the elements.</p>
     json.end_column == 1
 </code></pre>
 <p>As well as child objects meta-data:</p>
-<pre><code>&gt;&gt;&gt; json.raw()['test'] == Object(
+<pre><code>&gt;&gt;&gt; json.raw()['test'] == Node(
         data=123,
         data_type=Type.NUMBER,
         end_column=15,
@@ -63,7 +63,7 @@ the elements.</p>
     )
 </code></pre>
 <p>Every JSON token contains all possible metadata:</p>
-<pre><code>&gt;&gt;&gt; data_key = Object(
+<pre><code>&gt;&gt;&gt; data_key = Node(
         data='test',
         data_type=Type.STRING,
         end_column=10,
@@ -71,7 +71,7 @@ the elements.</p>
         start_column=4,
         start_line=3,
     )
-&gt;&gt;&gt; data_val = Object(
+&gt;&gt;&gt; data_val = Node(
         data=123,
         data_type=Type.NUMBER,
         end_column=15,
@@ -91,9 +91,9 @@ the elements.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L0-L263" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L0-L89" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;A JSON Loader with column and line numbers.
+<pre><code class="python">&#34;&#34;&#34;JSON/YAML loaders with column and line numbers.
 
 [![Release](
 https://img.shields.io/pypi/v/metaloaders?color=success&amp;label=Release&amp;style=flat-square)](
@@ -144,7 +144,7 @@ Now you can access the outer object meta-data:
 
 As well as child objects meta-data:
 
-    &gt;&gt;&gt; json.raw()[&#39;test&#39;] == Object(
+    &gt;&gt;&gt; json.raw()[&#39;test&#39;] == Node(
             data=123,
             data_type=Type.NUMBER,
             end_column=15,
@@ -155,7 +155,7 @@ As well as child objects meta-data:
 
 Every JSON token contains all possible metadata:
 
-    &gt;&gt;&gt; data_key = Object(
+    &gt;&gt;&gt; data_key = Node(
             data=&#39;test&#39;,
             data_type=Type.STRING,
             end_column=10,
@@ -163,7 +163,7 @@ Every JSON token contains all possible metadata:
             start_column=4,
             start_line=3,
         )
-    &gt;&gt;&gt; data_val = Object(
+    &gt;&gt;&gt; data_val = Node(
             data=123,
             data_type=Type.NUMBER,
             end_column=15,
@@ -182,441 +182,35 @@ Every JSON token contains all possible metadata:
     &gt;&gt;&gt; from metaloaders import *  # to import everything
 
 Please read the documentation bellow for more details about every function.
-&#34;&#34;&#34;
-
-# Standard library
-import ast
-from enum import (
-    Enum,
-)
-from typing import (
-    Any,
-    NamedTuple,
-    Optional,
-)
-
-# Third party libraries
-import lark
-
-
-# Constants
-GRAMMAR = r&#34;&#34;&#34;
-    ?start: value
-
-    ?value: array
-          | object
-          | number
-          | string
-          | &#34;false&#34; -&gt; false
-          | &#34;null&#34; -&gt; null
-          | &#34;true&#34; -&gt; true
-
-    array  : &#34;[&#34; [value (&#34;,&#34; value)*] &#34;]&#34;
-    object : &#34;{&#34; [pair (&#34;,&#34; pair)*] &#34;}&#34;
-    number : SIGNED_NUMBER
-    pair   : string &#34;:&#34; value
-    string : ESCAPED_STRING
-
-    %import common.ESCAPED_STRING
-    %import common.SIGNED_NUMBER
-    %import common.WS
-
-    %ignore WS
-&#34;&#34;&#34;
-
-
-class MetaJsonError(Exception):
-    &#34;&#34;&#34;Base exception for all errors within this package.&#34;&#34;&#34;
-
-
-class Type(Enum):
-    &#34;&#34;&#34;Enumeration for all possible `Object` data types.&#34;&#34;&#34;
-    ARRAY: str = &#39;ARRAY&#39;
-    &#34;&#34;&#34;Indicates an array data-type: Example: `[]`&#34;&#34;&#34;
-    FALSE: str = &#39;FALSE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `false`&#34;&#34;&#34;
-    NUMBER: str = &#39;NUMBER&#39;
-    &#34;&#34;&#34;Indicates a numeric data-type: Example: `123.4`&#34;&#34;&#34;
-    NULL: str = &#39;NULL&#39;
-    &#34;&#34;&#34;Indicates a null data-type: Example: `null`&#34;&#34;&#34;
-    OBJECT: str = &#39;OBJECT&#39;
-    &#34;&#34;&#34;Indicates an object data-type: Example: `{}`&#34;&#34;&#34;
-    STRING: str = &#39;STRING&#39;
-    &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
-    TRUE: str = &#39;TRUE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;
-
-
-class Object(NamedTuple):
-    &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
-    data: Any
-    &#34;&#34;&#34;Contains the inner element data.&#34;&#34;&#34;
-    data_type: Type
-    &#34;&#34;&#34;Defines the inner element type.&#34;&#34;&#34;
-    end_column: int
-    &#34;&#34;&#34;End column for the element.&#34;&#34;&#34;
-    end_line: int
-    &#34;&#34;&#34;End line for the element.&#34;&#34;&#34;
-    start_column: int
-    &#34;&#34;&#34;Start column for the element.&#34;&#34;&#34;
-    start_line: int
-    &#34;&#34;&#34;Start line for the element.&#34;&#34;&#34;
-
-    def raw(self, recursive: bool = False) -&gt; Any:
-        &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
-        data: Any
-        if self.data_type is Type.ARRAY:
-            data = [val.raw(recursive=recursive) for val in self.data]
-        elif self.data_type is Type.FALSE:
-            data = self.data
-        elif self.data_type is Type.NUMBER:
-            data = self.data
-        elif self.data_type is Type.NULL:
-            data = self.data
-        elif self.data_type is Type.OBJECT:
-            data = {
-                key.raw(): (
-                    val.raw(recursive=recursive)
-                    if recursive
-                    else val
-                )
-                for key, val in self.data.items()
-            }
-        elif self.data_type is Type.STRING:
-            data = self.data
-        elif self.data_type is Type.TRUE:
-            data = self.data
-        else:
-            raise NotImplementedError(data)
-
-        return data
-
-
-def load(stream: str) -&gt; Object:
-    &#34;&#34;&#34;Loads a string representation of a JSON document as an `Object` class.
-
-    Raises `MetaJsonError` if any parsing error occur.
-    &#34;&#34;&#34;
-    parser = lark.Lark(
-        grammar=GRAMMAR,
-        parser=&#39;lalr&#39;,
-        propagate_positions=True,
-    )
-
-    try:
-        obj = parser.parse(stream)
-    except lark.exceptions.LarkError as exc:
-        raise MetaJsonError(f&#39;Unable to parse stream: {exc}&#39;)
-    else:
-        data: Object = _simplify(obj)
-        return data
-
-
-def _simplify(obj: Any) -&gt; Any:
-    data: Any
-    data_type: Optional[Type]
-
-    if isinstance(obj, lark.Tree):
-        if obj.data == &#39;object&#39;:
-            data = dict(map(_simplify, obj.children))
-            data_type = Type.OBJECT
-        elif obj.data == &#39;array&#39;:
-            data = list(map(_simplify, obj.children))
-            data_type = Type.ARRAY
-        elif obj.data == &#39;pair&#39;:
-            data = (
-                _simplify(obj.children[0]),
-                _simplify(obj.children[1]),
-            )
-            data_type = None
-        elif obj.data == &#39;null&#39;:
-            data = None
-            data_type = Type.NULL
-        elif obj.data == &#39;true&#39;:
-            data = True
-            data_type = Type.TRUE
-        elif obj.data == &#39;false&#39;:
-            data = False
-            data_type = Type.FALSE
-        elif obj.data == &#39;string&#39;:
-            data = ast.literal_eval(obj.children[0].value)  # type: ignore
-            data_type = Type.STRING
-        elif obj.data == &#39;number&#39;:
-            data = ast.literal_eval(obj.children[0].value)  # type: ignore
-            data_type = Type.NUMBER
-        else:
-            raise NotImplementedError(obj)
-    else:
-        raise NotImplementedError(obj)
-
-    return data if data_type is None else Object(
-        data=data,
-        data_type=data_type,
-        end_column=obj.end_column - 1,  # type: ignore
-        end_line=obj.end_line,  # type: ignore
-        start_column=obj.column - 1,  # type: ignore
-        start_line=obj.line,  # type: ignore
-    )</code></pre>
+&#34;&#34;&#34;</code></pre>
 </details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="metaloaders.exceptions" href="exceptions.html">metaloaders.exceptions</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="metaloaders.json" href="json.html">metaloaders.json</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="metaloaders.model" href="model.html">metaloaders.model</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="metaloaders.yaml" href="yaml.html">metaloaders.yaml</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="metaloaders.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metaloaders.Object" href="#metaloaders.Object">Object</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Loads a string representation of a JSON document as an <code><a title="metaloaders.Object" href="#metaloaders.Object">Object</a></code> class.</p>
-<p>Raises <code><a title="metaloaders.MetaJsonError" href="#metaloaders.MetaJsonError">MetaJsonError</a></code> if any parsing error occur.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L200-L217" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def load(stream: str) -&gt; Object:
-    &#34;&#34;&#34;Loads a string representation of a JSON document as an `Object` class.
-
-    Raises `MetaJsonError` if any parsing error occur.
-    &#34;&#34;&#34;
-    parser = lark.Lark(
-        grammar=GRAMMAR,
-        parser=&#39;lalr&#39;,
-        propagate_positions=True,
-    )
-
-    try:
-        obj = parser.parse(stream)
-    except lark.exceptions.LarkError as exc:
-        raise MetaJsonError(f&#39;Unable to parse stream: {exc}&#39;)
-    else:
-        data: Object = _simplify(obj)
-        return data</code></pre>
-</details>
-</dd>
-</dl>
-</section>
-<section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="metaloaders.MetaJsonError"><code class="flex name class">
-<span>class <span class="ident">MetaJsonError</span></span>
-<span>(</span><span>...)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Base exception for all errors within this package.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L133-L134" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">class MetaJsonError(Exception):
-    &#34;&#34;&#34;Base exception for all errors within this package.&#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
-<dt id="metaloaders.Type"><code class="flex name class">
-<span>class <span class="ident">Type</span></span>
-<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Enumeration for all possible <code><a title="metaloaders.Object" href="#metaloaders.Object">Object</a></code> data types.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L137-L152" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">class Type(Enum):
-    &#34;&#34;&#34;Enumeration for all possible `Object` data types.&#34;&#34;&#34;
-    ARRAY: str = &#39;ARRAY&#39;
-    &#34;&#34;&#34;Indicates an array data-type: Example: `[]`&#34;&#34;&#34;
-    FALSE: str = &#39;FALSE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `false`&#34;&#34;&#34;
-    NUMBER: str = &#39;NUMBER&#39;
-    &#34;&#34;&#34;Indicates a numeric data-type: Example: `123.4`&#34;&#34;&#34;
-    NULL: str = &#39;NULL&#39;
-    &#34;&#34;&#34;Indicates a null data-type: Example: `null`&#34;&#34;&#34;
-    OBJECT: str = &#39;OBJECT&#39;
-    &#34;&#34;&#34;Indicates an object data-type: Example: `{}`&#34;&#34;&#34;
-    STRING: str = &#39;STRING&#39;
-    &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
-    TRUE: str = &#39;TRUE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="metaloaders.Type.ARRAY"><code class="name">var <span class="ident">ARRAY</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates an array data-type: Example: <code>[]</code></p></div>
-</dd>
-<dt id="metaloaders.Type.FALSE"><code class="name">var <span class="ident">FALSE</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates a boolean data-type: Example: <code>false</code></p></div>
-</dd>
-<dt id="metaloaders.Type.NUMBER"><code class="name">var <span class="ident">NUMBER</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates a numeric data-type: Example: <code>123.4</code></p></div>
-</dd>
-<dt id="metaloaders.Type.NULL"><code class="name">var <span class="ident">NULL</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates a null data-type: Example: <code>null</code></p></div>
-</dd>
-<dt id="metaloaders.Type.OBJECT"><code class="name">var <span class="ident">OBJECT</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates an object data-type: Example: <code>{}</code></p></div>
-</dd>
-<dt id="metaloaders.Type.STRING"><code class="name">var <span class="ident">STRING</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates a string data-type: Example: <code>"example"</code></p></div>
-</dd>
-<dt id="metaloaders.Type.TRUE"><code class="name">var <span class="ident">TRUE</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates a boolean data-type: Example: <code>true</code></p></div>
-</dd>
-</dl>
-</dd>
-<dt id="metaloaders.Object"><code class="flex name class">
-<span>class <span class="ident">Object</span></span>
-<span>(</span><span>data: Any, data_type: <a title="metaloaders.Type" href="#metaloaders.Type">Type</a>, end_column: int, end_line: int, start_column: int, start_line: int)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Represents any JSON token and its metadata.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L155-L197" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">class Object(NamedTuple):
-    &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
-    data: Any
-    &#34;&#34;&#34;Contains the inner element data.&#34;&#34;&#34;
-    data_type: Type
-    &#34;&#34;&#34;Defines the inner element type.&#34;&#34;&#34;
-    end_column: int
-    &#34;&#34;&#34;End column for the element.&#34;&#34;&#34;
-    end_line: int
-    &#34;&#34;&#34;End line for the element.&#34;&#34;&#34;
-    start_column: int
-    &#34;&#34;&#34;Start column for the element.&#34;&#34;&#34;
-    start_line: int
-    &#34;&#34;&#34;Start line for the element.&#34;&#34;&#34;
-
-    def raw(self, recursive: bool = False) -&gt; Any:
-        &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
-        data: Any
-        if self.data_type is Type.ARRAY:
-            data = [val.raw(recursive=recursive) for val in self.data]
-        elif self.data_type is Type.FALSE:
-            data = self.data
-        elif self.data_type is Type.NUMBER:
-            data = self.data
-        elif self.data_type is Type.NULL:
-            data = self.data
-        elif self.data_type is Type.OBJECT:
-            data = {
-                key.raw(): (
-                    val.raw(recursive=recursive)
-                    if recursive
-                    else val
-                )
-                for key, val in self.data.items()
-            }
-        elif self.data_type is Type.STRING:
-            data = self.data
-        elif self.data_type is Type.TRUE:
-            data = self.data
-        else:
-            raise NotImplementedError(data)
-
-        return data</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.tuple</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="metaloaders.Object.data"><code class="name">var <span class="ident">data</span> : Any</code></dt>
-<dd>
-<div class="desc"><p>Contains the inner element data.</p></div>
-</dd>
-<dt id="metaloaders.Object.data_type"><code class="name">var <span class="ident">data_type</span> : <a title="metaloaders.Type" href="#metaloaders.Type">Type</a></code></dt>
-<dd>
-<div class="desc"><p>Defines the inner element type.</p></div>
-</dd>
-<dt id="metaloaders.Object.end_column"><code class="name">var <span class="ident">end_column</span> : int</code></dt>
-<dd>
-<div class="desc"><p>End column for the element.</p></div>
-</dd>
-<dt id="metaloaders.Object.end_line"><code class="name">var <span class="ident">end_line</span> : int</code></dt>
-<dd>
-<div class="desc"><p>End line for the element.</p></div>
-</dd>
-<dt id="metaloaders.Object.start_column"><code class="name">var <span class="ident">start_column</span> : int</code></dt>
-<dd>
-<div class="desc"><p>Start column for the element.</p></div>
-</dd>
-<dt id="metaloaders.Object.start_line"><code class="name">var <span class="ident">start_line</span> : int</code></dt>
-<dd>
-<div class="desc"><p>Start line for the element.</p></div>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="metaloaders.Object.raw"><code class="name flex">
-<span>def <span class="ident">raw</span></span>(<span>self, recursive: bool = False) ‑> Any</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Simplifies the inner element so it's easier to work with.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L170-L197" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def raw(self, recursive: bool = False) -&gt; Any:
-    &#34;&#34;&#34;Simplifies the inner element so it&#39;s easier to work with.&#34;&#34;&#34;
-    data: Any
-    if self.data_type is Type.ARRAY:
-        data = [val.raw(recursive=recursive) for val in self.data]
-    elif self.data_type is Type.FALSE:
-        data = self.data
-    elif self.data_type is Type.NUMBER:
-        data = self.data
-    elif self.data_type is Type.NULL:
-        data = self.data
-    elif self.data_type is Type.OBJECT:
-        data = {
-            key.raw(): (
-                val.raw(recursive=recursive)
-                if recursive
-                else val
-            )
-            for key, val in self.data.items()
-        }
-    elif self.data_type is Type.STRING:
-        data = self.data
-    elif self.data_type is Type.TRUE:
-        data = self.data
-    else:
-        raise NotImplementedError(data)
-
-    return data</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -629,40 +223,12 @@ def _simplify(obj: Any) -&gt; Any:
 </ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="metaloaders.load" href="#metaloaders.load">load</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li>
-<h4><code><a title="metaloaders.MetaJsonError" href="#metaloaders.MetaJsonError">MetaJsonError</a></code></h4>
-</li>
-<li>
-<h4><code><a title="metaloaders.Type" href="#metaloaders.Type">Type</a></code></h4>
-<ul class="two-column">
-<li><code><a title="metaloaders.Type.ARRAY" href="#metaloaders.Type.ARRAY">ARRAY</a></code></li>
-<li><code><a title="metaloaders.Type.FALSE" href="#metaloaders.Type.FALSE">FALSE</a></code></li>
-<li><code><a title="metaloaders.Type.NUMBER" href="#metaloaders.Type.NUMBER">NUMBER</a></code></li>
-<li><code><a title="metaloaders.Type.NULL" href="#metaloaders.Type.NULL">NULL</a></code></li>
-<li><code><a title="metaloaders.Type.OBJECT" href="#metaloaders.Type.OBJECT">OBJECT</a></code></li>
-<li><code><a title="metaloaders.Type.STRING" href="#metaloaders.Type.STRING">STRING</a></code></li>
-<li><code><a title="metaloaders.Type.TRUE" href="#metaloaders.Type.TRUE">TRUE</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="metaloaders.Object" href="#metaloaders.Object">Object</a></code></h4>
-<ul class="two-column">
-<li><code><a title="metaloaders.Object.raw" href="#metaloaders.Object.raw">raw</a></code></li>
-<li><code><a title="metaloaders.Object.data" href="#metaloaders.Object.data">data</a></code></li>
-<li><code><a title="metaloaders.Object.data_type" href="#metaloaders.Object.data_type">data_type</a></code></li>
-<li><code><a title="metaloaders.Object.end_column" href="#metaloaders.Object.end_column">end_column</a></code></li>
-<li><code><a title="metaloaders.Object.end_line" href="#metaloaders.Object.end_line">end_line</a></code></li>
-<li><code><a title="metaloaders.Object.start_column" href="#metaloaders.Object.start_column">start_column</a></code></li>
-<li><code><a title="metaloaders.Object.start_line" href="#metaloaders.Object.start_line">start_line</a></code></li>
-</ul>
-</li>
+<li><code><a title="metaloaders.exceptions" href="exceptions.html">metaloaders.exceptions</a></code></li>
+<li><code><a title="metaloaders.json" href="json.html">metaloaders.json</a></code></li>
+<li><code><a title="metaloaders.model" href="model.html">metaloaders.model</a></code></li>
+<li><code><a title="metaloaders.yaml" href="yaml.html">metaloaders.yaml</a></code></li>
 </ul>
 </li>
 </ul>

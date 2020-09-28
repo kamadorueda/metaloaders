@@ -7,17 +7,19 @@ from typing import (
     Any,
 )
 # Local libraries
-from metaloaders import (
-    Object,
-    load,
+from metaloaders.model import (
+    Node,
     Type,
+)
+from metaloaders.json import (
+    load,
 )
 
 
 def test_metaloaders_load_1() -> None:
     assert load("""
         "x"
-    """) == Object(
+    """) == Node(
         data='x',
         data_type=Type.STRING,
         end_column=11,
@@ -39,38 +41,38 @@ def test_metaloaders_load_2() -> None:
     data = [data]
     data = {"data": data}
 
-    assert load(dump(data, indent=2)) == Object(
+    assert load(dump(data, indent=2)) == Node(
         data={
-            Object(
+            Node(
                 data='data',
                 data_type=Type.STRING,
                 end_column=8,
                 end_line=2,
                 start_column=2,
                 start_line=2,
-            ): Object(
+            ): Node(
                 data=[
-                    Object(
+                    Node(
                         data={
-                            Object(
+                            Node(
                                 data='data',
                                 data_type=Type.STRING,
                                 end_column=12,
                                 end_line=4,
                                 start_column=6,
                                 start_line=4,
-                            ): Object(
+                            ): Node(
                                 data=[
-                                    Object(
+                                    Node(
                                         data={
-                                            Object(
+                                            Node(
                                                 data='a',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=6,
                                                 start_column=10,
                                                 start_line=6,
-                                            ): Object(
+                                            ): Node(
                                                 data=123,
                                                 data_type=Type.NUMBER,
                                                 end_column=18,
@@ -78,14 +80,14 @@ def test_metaloaders_load_2() -> None:
                                                 start_column=15,
                                                 start_line=6,
                                             ),
-                                            Object(
+                                            Node(
                                                 data='b',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=7,
                                                 start_column=10,
                                                 start_line=7,
-                                            ): Object(
+                                            ): Node(
                                                 data=True,
                                                 data_type=Type.TRUE,
                                                 end_column=19,
@@ -93,14 +95,14 @@ def test_metaloaders_load_2() -> None:
                                                 start_column=15,
                                                 start_line=7,
                                             ),
-                                            Object(
+                                            Node(
                                                 data='c',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=8,
                                                 start_column=10,
                                                 start_line=8,
-                                            ): Object(
+                                            ): Node(
                                                 data=None,
                                                 data_type=Type.NULL,
                                                 end_column=19,
@@ -108,14 +110,14 @@ def test_metaloaders_load_2() -> None:
                                                 start_column=15,
                                                 start_line=8,
                                             ),
-                                            Object(
+                                            Node(
                                                 data='d',
                                                 data_type=Type.STRING,
                                                 end_column=13,
                                                 end_line=9,
                                                 start_column=10,
                                                 start_line=9,
-                                            ): Object(
+                                            ): Node(
                                                 data='string',
                                                 data_type=Type.STRING,
                                                 end_column=23,
@@ -173,9 +175,8 @@ def test_metaloaders_load_3() -> None:
     assert json.end_line == 4
     assert json.start_column == 0
     assert json.end_column == 1
-    assert json.raw(recursive=True) == {'test': 123}
-    assert json.raw() == {
-        'test': Object(
+    assert json.inner == {
+        'test': Node(
             data=123,
             data_type=Type.NUMBER,
             end_column=15,
@@ -184,7 +185,7 @@ def test_metaloaders_load_3() -> None:
             start_line=3,
         ),
     }
-    data_key = Object(
+    data_key = Node(
         data='test',
         data_type=Type.STRING,
         end_column=10,
@@ -192,7 +193,7 @@ def test_metaloaders_load_3() -> None:
         start_column=4,
         start_line=3,
     )
-    data_val = Object(
+    data_val = Node(
         data=123,
         data_type=Type.NUMBER,
         end_column=15,
