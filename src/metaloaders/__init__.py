@@ -1,4 +1,4 @@
-"""A JSON Loader with column and line numbers.
+"""JSON/YAML loaders with column and line numbers.
 
 [![Release](
 https://img.shields.io/pypi/v/metaloaders?color=success&label=Release&style=flat-square)](

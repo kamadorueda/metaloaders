@@ -13,7 +13,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
   "Typing :: Typed",
 ]
-description = "A JSON Loader with column and line numbers."
+description = "JSON/YAML loaders with column and line numbers."
 documentation = "https://kamadorueda.github.io/metaloaders"
 homepage = "https://kamadorueda.github.io/metaloaders"
 license = "MIT"
