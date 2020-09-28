@@ -26,23 +26,20 @@
 <p>Let's load a simple JSON document:</p>
 <pre><code>&gt;&gt;&gt; from metaloaders import load
 
-&gt;&gt;&gt; stream = """
+&gt;&gt;&gt; json = load("""
 ... {
 ...     "test": 123
 ... }
-... """
-
-&gt;&gt;&gt; json = load(stream)
+... """)
 </code></pre>
 <p>Now you can access the outer object meta-data:</p>
-<pre><code>&gt;&gt;&gt; json.raw(recursive=True) == {'test': 123}
-    json.start_line == 2
+<pre><code>&gt;&gt;&gt; json.start_line == 2
     json.end_line == 4
     json.start_column == 0
     json.end_column == 1
 </code></pre>
 <p>As well as child objects meta-data:</p>
-<pre><code>&gt;&gt;&gt; json.raw()['test'] == Node(
+<pre><code>&gt;&gt;&gt; json.inner['test'] == Node(
         data=123,
         data_type=Type.NUMBER,
         end_column=15,
@@ -52,23 +49,26 @@
     )
 </code></pre>
 <p>Every JSON token contains all possible metadata:</p>
-<pre><code>&gt;&gt;&gt; data_key = Node(
-        data='test',
-        data_type=Type.STRING,
-        end_column=10,
-        end_line=3,
-        start_column=4,
-        start_line=3,
-    )
-&gt;&gt;&gt; data_val = Node(
-        data=123,
-        data_type=Type.NUMBER,
-        end_column=15,
-        end_line=3,
-        start_column=12,
-        start_line=3,
-    )
-&gt;&gt;&gt; json.data == {data_key: data_val}
+<pre><code>&gt;&gt;&gt; json.data == {key: val}
+    # Where:
+    #
+    # key = Node(
+    #     data='test',
+    #     data_type=Type.STRING,
+    #     end_column=10,
+    #     end_line=3,
+    #     start_column=4,
+    #     start_line=3,
+    # )
+    #
+    # val = Node(
+    #     data=123,
+    #     data_type=Type.NUMBER,
+    #     end_column=15,
+    #     end_line=3,
+    #     start_column=12,
+    #     start_line=3,
+    # )
 </code></pre>
 <details class="source">
 <summary>
@@ -81,25 +81,22 @@ Let&#39;s load a simple JSON document:
 
     &gt;&gt;&gt; from metaloaders import load
 
-    &gt;&gt;&gt; stream = \&#34;&#34;&#34;
+    &gt;&gt;&gt; json = load(\&#34;&#34;&#34;
     ... {
     ...     &#34;test&#34;: 123
     ... }
-    ... \&#34;&#34;&#34;
-
-    &gt;&gt;&gt; json = load(stream)
+    ... \&#34;&#34;&#34;)
 
 Now you can access the outer object meta-data:
 
-    &gt;&gt;&gt; json.raw(recursive=True) == {&#39;test&#39;: 123}
-        json.start_line == 2
+    &gt;&gt;&gt; json.start_line == 2
         json.end_line == 4
         json.start_column == 0
         json.end_column == 1
 
 As well as child objects meta-data:
 
-    &gt;&gt;&gt; json.raw()[&#39;test&#39;] == Node(
+    &gt;&gt;&gt; json.inner[&#39;test&#39;] == Node(
             data=123,
             data_type=Type.NUMBER,
             end_column=15,
@@ -110,23 +107,26 @@ As well as child objects meta-data:
 
 Every JSON token contains all possible metadata:
 
-    &gt;&gt;&gt; data_key = Node(
-            data=&#39;test&#39;,
-            data_type=Type.STRING,
-            end_column=10,
-            end_line=3,
-            start_column=4,
-            start_line=3,
-        )
-    &gt;&gt;&gt; data_val = Node(
-            data=123,
-            data_type=Type.NUMBER,
-            end_column=15,
-            end_line=3,
-            start_column=12,
-            start_line=3,
-        )
-    &gt;&gt;&gt; json.data == {data_key: data_val}
+    &gt;&gt;&gt; json.data == {key: val}
+        # Where:
+        #
+        # key = Node(
+        #     data=&#39;test&#39;,
+        #     data_type=Type.STRING,
+        #     end_column=10,
+        #     end_line=3,
+        #     start_column=4,
+        #     start_line=3,
+        # )
+        #
+        # val = Node(
+        #     data=123,
+        #     data_type=Type.NUMBER,
+        #     end_column=15,
+        #     end_line=3,
+        #     start_column=12,
+        #     start_line=3,
+        # )
 &#34;&#34;&#34;
 # Standard library
 import ast

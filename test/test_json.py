@@ -175,25 +175,7 @@ def test_metaloaders_load_3() -> None:
     assert json.end_line == 4
     assert json.start_column == 0
     assert json.end_column == 1
-    assert json.inner == {
-        'test': Node(
-            data=123,
-            data_type=Type.NUMBER,
-            end_column=15,
-            end_line=3,
-            start_column=12,
-            start_line=3,
-        ),
-    }
-    data_key = Node(
-        data='test',
-        data_type=Type.STRING,
-        end_column=10,
-        end_line=3,
-        start_column=4,
-        start_line=3,
-    )
-    data_val = Node(
+    assert json.inner['test'] == Node(
         data=123,
         data_type=Type.NUMBER,
         end_column=15,
@@ -201,4 +183,21 @@ def test_metaloaders_load_3() -> None:
         start_column=12,
         start_line=3,
     )
-    assert json.data == {data_key: data_val}
+
+    key = Node(
+        data='test',
+        data_type=Type.STRING,
+        end_column=10,
+        end_line=3,
+        start_column=4,
+        start_line=3,
+    )
+    data = Node(
+        data=123,
+        data_type=Type.NUMBER,
+        end_column=15,
+        end_line=3,
+        start_column=12,
+        start_line=3,
+    )
+    assert json.data == {key: data}
