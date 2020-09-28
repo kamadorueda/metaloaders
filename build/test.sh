@@ -2,7 +2,7 @@
 
 function main {
   local args_pytest=(
-    --cov 'metajson'
+    --cov 'metaloaders'
     --cov-branch
     --cov-report 'term'
     --cov-report "html:${PWD}/coverage/"

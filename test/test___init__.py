@@ -7,14 +7,14 @@ from typing import (
     Any,
 )
 # Local libraries
-from metajson import (
+from metaloaders import (
     Object,
     load,
     Type,
 )
 
 
-def test_metajson_load_1() -> None:
+def test_metaloaders_load_1() -> None:
     assert load("""
         "x"
     """) == Object(
@@ -27,7 +27,7 @@ def test_metajson_load_1() -> None:
     )
 
 
-def test_metajson_load_2() -> None:
+def test_metaloaders_load_2() -> None:
     data: Any = {
         'a': 123,
         'b': True,
@@ -160,7 +160,7 @@ def test_metajson_load_2() -> None:
     )
 
 
-def test_metajson_load_3() -> None:
+def test_metaloaders_load_3() -> None:
     stream = textwrap.dedent("""
     {
         "test": 123
