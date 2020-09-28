@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.4" />
 <title>metaloaders.json API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Metaloader for JSON objects …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,12 +22,113 @@
 <h1 class="title">Module <code>metaloaders.json</code></h1>
 </header>
 <section id="section-intro">
+<p>Metaloader for JSON objects.</p>
+<p>Let's load a simple JSON document:</p>
+<pre><code>&gt;&gt;&gt; from metaloaders import load
+
+&gt;&gt;&gt; stream = """
+... {
+...     "test": 123
+... }
+... """
+
+&gt;&gt;&gt; json = load(stream)
+</code></pre>
+<p>Now you can access the outer object meta-data:</p>
+<pre><code>&gt;&gt;&gt; json.raw(recursive=True) == {'test': 123}
+    json.start_line == 2
+    json.end_line == 4
+    json.start_column == 0
+    json.end_column == 1
+</code></pre>
+<p>As well as child objects meta-data:</p>
+<pre><code>&gt;&gt;&gt; json.raw()['test'] == Node(
+        data=123,
+        data_type=Type.NUMBER,
+        end_column=15,
+        end_line=3,
+        start_column=12,
+        start_line=3,
+    )
+</code></pre>
+<p>Every JSON token contains all possible metadata:</p>
+<pre><code>&gt;&gt;&gt; data_key = Node(
+        data='test',
+        data_type=Type.STRING,
+        end_column=10,
+        end_line=3,
+        start_column=4,
+        start_line=3,
+    )
+&gt;&gt;&gt; data_val = Node(
+        data=123,
+        data_type=Type.NUMBER,
+        end_column=15,
+        end_line=3,
+        start_column=12,
+        start_line=3,
+    )
+&gt;&gt;&gt; json.data == {data_key: data_val}
+</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/json.py#L0-L109" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/json.py#L0-L162" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python"># Standard library
+<pre><code class="python">&#34;&#34;&#34;Metaloader for JSON objects.
+
+Let&#39;s load a simple JSON document:
+
+    &gt;&gt;&gt; from metaloaders import load
+
+    &gt;&gt;&gt; stream = \&#34;&#34;&#34;
+    ... {
+    ...     &#34;test&#34;: 123
+    ... }
+    ... \&#34;&#34;&#34;
+
+    &gt;&gt;&gt; json = load(stream)
+
+Now you can access the outer object meta-data:
+
+    &gt;&gt;&gt; json.raw(recursive=True) == {&#39;test&#39;: 123}
+        json.start_line == 2
+        json.end_line == 4
+        json.start_column == 0
+        json.end_column == 1
+
+As well as child objects meta-data:
+
+    &gt;&gt;&gt; json.raw()[&#39;test&#39;] == Node(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        )
+
+Every JSON token contains all possible metadata:
+
+    &gt;&gt;&gt; data_key = Node(
+            data=&#39;test&#39;,
+            data_type=Type.STRING,
+            end_column=10,
+            end_line=3,
+            start_column=4,
+            start_line=3,
+        )
+    &gt;&gt;&gt; data_val = Node(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=15,
+            end_line=3,
+            start_column=12,
+            start_line=3,
+        )
+    &gt;&gt;&gt; json.data == {data_key: data_val}
+&#34;&#34;&#34;
+# Standard library
 import ast
 from typing import (
     Any,
@@ -155,7 +256,7 @@ def _simplify(obj: Any) -&gt; Any:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/json.py#L46-L63" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/json.py#L99-L116" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load(stream: str) -&gt; Node:
     &#34;&#34;&#34;Loads a string representation of a JSON document as an `Node` class.

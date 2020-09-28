@@ -30,68 +30,26 @@
 <a href="https://kamadorueda.github.io/metaloaders/"><img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-success?style=flat-square"></a>
 <a href="https://github.com/kamadorueda/metaloaders/blob/latest/LICENSE.md"><img alt="License" src="https://img.shields.io/pypi/l/metaloaders?color=success&amp;label=License&amp;style=flat-square"></a></p>
 <h1 id="rationale">Rationale</h1>
-<p>At some point in your career you may deal with the problem of loading a JSON
-document with the requirement of knowing the positions (line and column) of
+<p>At some point in your career you may deal with the problem of loading data
+documents and knowing the positions (line and column) of
 the elements.</p>
-<p>Metajson deals with that for you.</p>
-<p>Let's load a simple JSON document:</p>
-<pre><code>&gt;&gt;&gt; from metaloaders import load
-
-&gt;&gt;&gt; stream = """
-... {
-...     "test": 123
-... }
-... """
-
-&gt;&gt;&gt; json = load(stream)
-</code></pre>
-<p>Now you can access the outer object meta-data:</p>
-<pre><code>&gt;&gt;&gt; json.raw(recursive=True) == {'test': 123}
-    json.start_line == 2
-    json.end_line == 4
-    json.start_column == 0
-    json.end_column == 1
-</code></pre>
-<p>As well as child objects meta-data:</p>
-<pre><code>&gt;&gt;&gt; json.raw()['test'] == Node(
-        data=123,
-        data_type=Type.NUMBER,
-        end_column=15,
-        end_line=3,
-        start_column=12,
-        start_line=3,
-    )
-</code></pre>
-<p>Every JSON token contains all possible metadata:</p>
-<pre><code>&gt;&gt;&gt; data_key = Node(
-        data='test',
-        data_type=Type.STRING,
-        end_column=10,
-        end_line=3,
-        start_column=4,
-        start_line=3,
-    )
-&gt;&gt;&gt; data_val = Node(
-        data=123,
-        data_type=Type.NUMBER,
-        end_column=15,
-        end_line=3,
-        start_column=12,
-        start_line=3,
-    )
-&gt;&gt;&gt; json.data == {data_key: data_val}
-</code></pre>
+<p>Metaloaders deals with that for you!</p>
+<p>We support JSON and YAML, and welcome contributions for other formats!.</p>
 <h1 id="installing">Installing</h1>
 <pre><code>$ pip install metaloaders
 </code></pre>
 <h1 id="using">Using</h1>
-<pre><code>&gt;&gt;&gt; from metaloaders import *  # to import everything
+<pre><code>&gt;&gt;&gt; from metaloaders.json import load  # to import the JSON loader
+&gt;&gt;&gt; load('{"foo": "bar"}')
+
+&gt;&gt;&gt; from metaloaders.yaml import load  # to import the YAML loader
+&gt;&gt;&gt; load('foo: bar')
 </code></pre>
 <p>Please read the documentation bellow for more details about every function.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L0-L89" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/__init__.py#L0-L44" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;JSON/YAML loaders with column and line numbers.
 
@@ -116,62 +74,13 @@ https://github.com/kamadorueda/metaloaders/blob/latest/LICENSE.md)
 
 # Rationale
 
-At some point in your career you may deal with the problem of loading a JSON
-document with the requirement of knowing the positions (line and column) of
+At some point in your career you may deal with the problem of loading data
+documents and knowing the positions (line and column) of
 the elements.
 
-Metajson deals with that for you.
+Metaloaders deals with that for you!
 
-Let&#39;s load a simple JSON document:
-
-    &gt;&gt;&gt; from metaloaders import load
-
-    &gt;&gt;&gt; stream = \&#34;&#34;&#34;
-    ... {
-    ...     &#34;test&#34;: 123
-    ... }
-    ... \&#34;&#34;&#34;
-
-    &gt;&gt;&gt; json = load(stream)
-
-Now you can access the outer object meta-data:
-
-    &gt;&gt;&gt; json.raw(recursive=True) == {&#39;test&#39;: 123}
-        json.start_line == 2
-        json.end_line == 4
-        json.start_column == 0
-        json.end_column == 1
-
-As well as child objects meta-data:
-
-    &gt;&gt;&gt; json.raw()[&#39;test&#39;] == Node(
-            data=123,
-            data_type=Type.NUMBER,
-            end_column=15,
-            end_line=3,
-            start_column=12,
-            start_line=3,
-        )
-
-Every JSON token contains all possible metadata:
-
-    &gt;&gt;&gt; data_key = Node(
-            data=&#39;test&#39;,
-            data_type=Type.STRING,
-            end_column=10,
-            end_line=3,
-            start_column=4,
-            start_line=3,
-        )
-    &gt;&gt;&gt; data_val = Node(
-            data=123,
-            data_type=Type.NUMBER,
-            end_column=15,
-            end_line=3,
-            start_column=12,
-            start_line=3,
-        )
-    &gt;&gt;&gt; json.data == {data_key: data_val}
+We support JSON and YAML, and welcome contributions for other formats!.
 
 # Installing
 
@@ -179,7 +88,11 @@ Every JSON token contains all possible metadata:
 
 # Using
 
-    &gt;&gt;&gt; from metaloaders import *  # to import everything
+    &gt;&gt;&gt; from metaloaders.json import load  # to import the JSON loader
+    &gt;&gt;&gt; load(&#39;{&#34;foo&#34;: &#34;bar&#34;}&#39;)
+
+    &gt;&gt;&gt; from metaloaders.yaml import load  # to import the YAML loader
+    &gt;&gt;&gt; load(&#39;foo: bar&#39;)
 
 Please read the documentation bellow for more details about every function.
 &#34;&#34;&#34;</code></pre>
@@ -190,19 +103,19 @@ Please read the documentation bellow for more details about every function.
 <dl>
 <dt><code class="name"><a title="metaloaders.exceptions" href="exceptions.html">metaloaders.exceptions</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Exceptions raised by this package.</p></div>
 </dd>
 <dt><code class="name"><a title="metaloaders.json" href="json.html">metaloaders.json</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Metaloader for JSON objects …</p></div>
 </dd>
 <dt><code class="name"><a title="metaloaders.model" href="model.html">metaloaders.model</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Collection of objects returned by the different loaders.</p></div>
 </dd>
 <dt><code class="name"><a title="metaloaders.yaml" href="yaml.html">metaloaders.yaml</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Metaloader for YAML objects.</p></div>
 </dd>
 </dl>
 </section>

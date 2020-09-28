@@ -21,62 +21,13 @@ https://github.com/kamadorueda/metaloaders/blob/latest/LICENSE.md)
 
 # Rationale
 
-At some point in your career you may deal with the problem of loading a JSON
-document with the requirement of knowing the positions (line and column) of
+At some point in your career you may deal with the problem of loading data
+documents and knowing the positions (line and column) of
 the elements.
 
-Metajson deals with that for you.
+Metaloaders deals with that for you!
 
-Let's load a simple JSON document:
-
-    >>> from metaloaders import load
-
-    >>> stream = \"""
-    ... {
-    ...     "test": 123
-    ... }
-    ... \"""
-
-    >>> json = load(stream)
-
-Now you can access the outer object meta-data:
-
-    >>> json.raw(recursive=True) == {'test': 123}
-        json.start_line == 2
-        json.end_line == 4
-        json.start_column == 0
-        json.end_column == 1
-
-As well as child objects meta-data:
-
-    >>> json.raw()['test'] == Node(
-            data=123,
-            data_type=Type.NUMBER,
-            end_column=15,
-            end_line=3,
-            start_column=12,
-            start_line=3,
-        )
-
-Every JSON token contains all possible metadata:
-
-    >>> data_key = Node(
-            data='test',
-            data_type=Type.STRING,
-            end_column=10,
-            end_line=3,
-            start_column=4,
-            start_line=3,
-        )
-    >>> data_val = Node(
-            data=123,
-            data_type=Type.NUMBER,
-            end_column=15,
-            end_line=3,
-            start_column=12,
-            start_line=3,
-        )
-    >>> json.data == {data_key: data_val}
+We support JSON and YAML, and welcome contributions for other formats!.
 
 # Installing
 
@@ -84,7 +35,11 @@ Every JSON token contains all possible metadata:
 
 # Using
 
-    >>> from metaloaders import *  # to import everything
+    >>> from metaloaders.json import load  # to import the JSON loader
+    >>> load('{"foo": "bar"}')
+
+    >>> from metaloaders.yaml import load  # to import the YAML loader
+    >>> load('foo: bar')
 
 Please read the documentation bellow for more details about every function.
 """

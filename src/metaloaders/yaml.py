@@ -1,0 +1,2 @@
+"""Metaloader for YAML objects.
+"""

@@ -1,3 +1,5 @@
+"""Collection of objects returned by the different loaders."""
+
 # Standard library
 from enum import (
     Enum,
