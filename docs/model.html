@@ -26,7 +26,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L0-L65" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L0-L75" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Collection of objects returned by the different loaders.&#34;&#34;&#34;
 
@@ -93,7 +93,17 @@ class Node(NamedTuple):
         else:
             data = self.data
 
-        return data</code></pre>
+        return data
+
+    def __repr__(self) -&gt; str:
+        return f&#34;&#34;&#34;Node(
+            data={self.data},
+            data_type={self.data_type},
+            end_column={self.end_column},
+            end_line={self.end_line},
+            start_column={self.start_column},
+            start_line={self.start_line},
+        )&#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -184,7 +194,7 @@ class Node(NamedTuple):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L33-L66" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L33-L76" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Node(NamedTuple):
     &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
@@ -219,7 +229,17 @@ class Node(NamedTuple):
         else:
             data = self.data
 
-        return data</code></pre>
+        return data
+
+    def __repr__(self) -&gt; str:
+        return f&#34;&#34;&#34;Node(
+            data={self.data},
+            data_type={self.data_type},
+            end_column={self.end_column},
+            end_line={self.end_line},
+            start_column={self.start_column},
+            start_line={self.start_line},
+        )&#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

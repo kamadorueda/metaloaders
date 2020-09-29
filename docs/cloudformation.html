@@ -26,7 +26,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L0-L89" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L0-L95" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Metaloader for JSON documents.
 &#34;&#34;&#34;
@@ -48,6 +48,7 @@ from metaloaders.exceptions import (
 )
 from metaloaders.model import (
     Node,
+    Type,
 )
 from metaloaders.yaml import (
     Loader as YAMLLoader,
@@ -95,9 +96,14 @@ def _multi_constructor(
     else:
         raise MetaloaderNotImplemented(f&#39;Bad tag: !{tag_suffix}&#39;)
 
-    return {
-        tag_suffix: constructor(node),
-    }
+    return Node(
+        data={tag_suffix: constructor(node)},
+        data_type=Type.OBJECT,
+        end_column=node.end_mark.column,
+        end_line=node.end_mark.line + 1,
+        start_column=node.start_mark.column,
+        start_line=node.start_mark.line + 1,
+    )
 
 
 def construct_getatt(
@@ -135,7 +141,7 @@ _override()</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L39-L46" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L40-L47" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load(stream: str, fmt: str) -&gt; Node:
     if fmt in {&#39;yml&#39;, &#39;yaml&#39;}:
@@ -155,7 +161,7 @@ _override()</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L73-L82" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L79-L88" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def construct_getatt(
     node: _yaml.Node,  # type: ignore
@@ -186,7 +192,7 @@ here in order to ease extension when needed.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L31-L36" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/cloudformation.py#L32-L37" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Loader(YAMLLoader):  # pylint: disable=abstract-method,too-many-ancestors
     &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.
