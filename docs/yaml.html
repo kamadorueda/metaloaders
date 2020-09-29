@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.8.4" />
 <title>metaloaders.yaml API documentation</title>
-<meta name="description" content="Metaloader for YAML objects." />
+<meta name="description" content="Metaloader for YAML documents …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -22,13 +22,103 @@
 <h1 class="title">Module <code>metaloaders.yaml</code></h1>
 </header>
 <section id="section-intro">
-<p>Metaloader for YAML objects.</p>
+<p>Metaloader for YAML documents.</p>
+<p>Let's load a simple YAML document:</p>
+<pre><code>&gt;&gt;&gt; from metaloaders import load
+
+&gt;&gt;&gt; yaml = load('test: 123')
+</code></pre>
+<p>Now you can access the outer object meta-data:</p>
+<pre><code>&gt;&gt;&gt; yaml.start_line == 1
+    yaml.end_line == 1
+    yaml.start_column == 0
+    yaml.end_column == 9
+</code></pre>
+<p>As well as child objects meta-data:</p>
+<pre><code>&gt;&gt;&gt; yaml.inner['test'] == Node(
+        data=123,
+        data_type=Type.NUMBER,
+        end_column=9,
+        end_line=1,
+        start_column=6,
+        start_line=1,
+    )
+</code></pre>
+<p>Every YAML token contains all possible metadata:</p>
+<pre><code>&gt;&gt;&gt; yaml.data == {key: val}
+    # Where:
+    #
+    # key = Node(
+    #     data='test',
+    #     data_type=Type.STRING,
+    #     end_column=4,
+    #     end_line=1,
+    #     start_column=0,
+    #     start_line=1,
+    # )
+    #
+    # val = Node(
+    #     data=123,
+    #     data_type=Type.NUMBER,
+    #     end_column=9,
+    #     end_line=1,
+    #     start_column=6,
+    #     start_line=1,
+    # )
+</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L112" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L179" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Metaloader for YAML objects.
+<pre><code class="python">&#34;&#34;&#34;Metaloader for YAML documents.
+
+Let&#39;s load a simple YAML document:
+
+    &gt;&gt;&gt; from metaloaders import load
+
+    &gt;&gt;&gt; yaml = load(&#39;test: 123&#39;)
+
+Now you can access the outer object meta-data:
+
+    &gt;&gt;&gt; yaml.start_line == 1
+        yaml.end_line == 1
+        yaml.start_column == 0
+        yaml.end_column == 9
+
+As well as child objects meta-data:
+
+    &gt;&gt;&gt; yaml.inner[&#39;test&#39;] == Node(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=9,
+            end_line=1,
+            start_column=6,
+            start_line=1,
+        )
+
+Every YAML token contains all possible metadata:
+
+    &gt;&gt;&gt; yaml.data == {key: val}
+        # Where:
+        #
+        # key = Node(
+        #     data=&#39;test&#39;,
+        #     data_type=Type.STRING,
+        #     end_column=4,
+        #     end_line=1,
+        #     start_column=0,
+        #     start_line=1,
+        # )
+        #
+        # val = Node(
+        #     data=123,
+        #     data_type=Type.NUMBER,
+        #     end_column=9,
+        #     end_line=1,
+        #     start_column=6,
+        #     start_line=1,
+        # )
 &#34;&#34;&#34;
 
 # Standard library
@@ -62,7 +152,7 @@ from metaloaders.exceptions import (
 )
 
 
-def load(stream: str) -&gt; List[Node]:
+def load(stream: str) -&gt; Node:
     &#34;&#34;&#34;Loads a string representation of a document.
 
     Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
@@ -77,7 +167,27 @@ def load(stream: str) -&gt; List[Node]:
     except _yaml.YAMLError as exc:  # type: ignore
         raise MetaloaderError(f&#39;Unable to parse stream: {exc}&#39;)
     else:
-        return items
+        if len(items) == 0:
+            return Node(
+                data=None,
+                data_type=Type.NULL,
+                end_column=0,
+                end_line=1,
+                start_column=0,
+                start_line=1,
+            )
+
+        if len(items) == 1:
+            return items[0]
+
+        return Node(
+            data=items,
+            data_type=Type.ARRAY,
+            end_column=items[-1].end_column,
+            end_line=items[-1].end_line,
+            start_column=items[0].start_column,
+            start_line=items[0].start_line,
+        )
     finally:
         loader._parser.dispose()
         with suppress(AttributeError):
@@ -113,9 +223,9 @@ def _factory(constructor: str, data_type: Type) -&gt; Callable[..., Node]:
             data=result,
             data_type=data_type,
             end_column=node.end_mark.column,
-            end_line=node.end_mark.line,
+            end_line=node.end_mark.line + 1,
             start_column=node.start_mark.column,
-            start_line=node.start_mark.line,
+            start_line=node.start_mark.line + 1,
         )
 
     return wrapper
@@ -151,7 +261,7 @@ _override()</code></pre>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="metaloaders.yaml.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> List[<a title="metaloaders.model.Node" href="model.html#metaloaders.model.Node">Node</a>]</span>
+<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metaloaders.model.Node" href="model.html#metaloaders.model.Node">Node</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Loads a string representation of a document.</p>
@@ -159,9 +269,9 @@ _override()</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L35-L56" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L82-L123" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def load(stream: str) -&gt; List[Node]:
+<pre><code class="python">def load(stream: str) -&gt; Node:
     &#34;&#34;&#34;Loads a string representation of a document.
 
     Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
@@ -176,7 +286,27 @@ _override()</code></pre>
     except _yaml.YAMLError as exc:  # type: ignore
         raise MetaloaderError(f&#39;Unable to parse stream: {exc}&#39;)
     else:
-        return items
+        if len(items) == 0:
+            return Node(
+                data=None,
+                data_type=Type.NULL,
+                end_column=0,
+                end_line=1,
+                start_column=0,
+                start_line=1,
+            )
+
+        if len(items) == 1:
+            return items[0]
+
+        return Node(
+            data=items,
+            data_type=Type.ARRAY,
+            end_column=items[-1].end_column,
+            end_line=items[-1].end_line,
+            start_column=items[0].start_column,
+            start_line=items[0].start_line,
+        )
     finally:
         loader._parser.dispose()
         with suppress(AttributeError):
@@ -200,7 +330,7 @@ _override()</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L59-L62" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L126-L129" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Loader(  # pylint: disable=abstract-method,too-many-ancestors
     _yaml.SafeLoader,  # type: ignore
