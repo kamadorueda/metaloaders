@@ -62,6 +62,7 @@ from typing import (
     Any,
     Callable,
     List,
+    Type as TypeOf,
 )
 
 # Third party library
@@ -79,14 +80,24 @@ from metaloaders.exceptions import (
 )
 
 
-def load(stream: str) -> Node:
+class Loader(  # pylint: disable=abstract-method,too-many-ancestors
+    _yaml.SafeLoader,  # type: ignore
+):
+    """YAML loader with overridden constructors that propagate positions.
+
+    In normal circumstances you should not use this directly, but it is left
+    here in order to ease extension when needed.
+    """
+
+
+def load(stream: str, *, loader_cls: TypeOf[Loader] = Loader) -> Node:
     """Loads a string representation of a document.
 
     Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
     """
     # pylint: disable=protected-access
     items: List[Node] = []
-    loader = Loader(stream)
+    loader = loader_cls(stream)
 
     try:
         while loader._constructor.check_data():
@@ -121,16 +132,6 @@ def load(stream: str) -> Node:
             loader._reader.reset_reader()
         with suppress(AttributeError):
             loader._scanner.reset_scanner()
-
-
-class Loader(  # pylint: disable=abstract-method,too-many-ancestors
-    _yaml.SafeLoader,  # type: ignore
-):
-    """YAML loader with overridden constructors that propagate positions.
-
-    In normal circumstances you should not use this directly, but it is left
-    here in order to ease extension when needed.
-    """
 
 
 def _factory(constructor: str, data_type: Type) -> Callable[..., Node]:

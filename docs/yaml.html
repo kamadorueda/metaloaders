@@ -69,7 +69,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L183" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L184" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Metaloader for YAML documents.
 
@@ -135,6 +135,7 @@ from typing import (
     Any,
     Callable,
     List,
+    Type as TypeOf,
 )
 
 # Third party library
@@ -152,14 +153,24 @@ from metaloaders.exceptions import (
 )
 
 
-def load(stream: str) -&gt; Node:
+class Loader(  # pylint: disable=abstract-method,too-many-ancestors
+    _yaml.SafeLoader,  # type: ignore
+):
+    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.
+
+    In normal circumstances you should not use this directly, but it is left
+    here in order to ease extension when needed.
+    &#34;&#34;&#34;
+
+
+def load(stream: str, *, loader_cls: TypeOf[Loader] = Loader) -&gt; Node:
     &#34;&#34;&#34;Loads a string representation of a document.
 
     Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
     &#34;&#34;&#34;
     # pylint: disable=protected-access
     items: List[Node] = []
-    loader = Loader(stream)
+    loader = loader_cls(stream)
 
     try:
         while loader._constructor.check_data():
@@ -194,16 +205,6 @@ def load(stream: str) -&gt; Node:
             loader._reader.reset_reader()
         with suppress(AttributeError):
             loader._scanner.reset_scanner()
-
-
-class Loader(  # pylint: disable=abstract-method,too-many-ancestors
-    _yaml.SafeLoader,  # type: ignore
-):
-    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.
-
-    In normal circumstances you should not use this directly, but it is left
-    here in order to ease extension when needed.
-    &#34;&#34;&#34;
 
 
 def _factory(constructor: str, data_type: Type) -&gt; Callable[..., Node]:
@@ -265,7 +266,7 @@ _override()</code></pre>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="metaloaders.yaml.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metaloaders.model.Node" href="model.html#metaloaders.model.Node">Node</a></span>
+<span>def <span class="ident">load</span></span>(<span>stream: str, *, loader_cls: Type[<a title="metaloaders.yaml.Loader" href="#metaloaders.yaml.Loader">Loader</a>] = metaloaders.yaml.Loader) ‑> <a title="metaloaders.model.Node" href="model.html#metaloaders.model.Node">Node</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Loads a string representation of a document.</p>
@@ -273,16 +274,16 @@ _override()</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L82-L123" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L93-L134" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def load(stream: str) -&gt; Node:
+<pre><code class="python">def load(stream: str, *, loader_cls: TypeOf[Loader] = Loader) -&gt; Node:
     &#34;&#34;&#34;Loads a string representation of a document.
 
     Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
     &#34;&#34;&#34;
     # pylint: disable=protected-access
     items: List[Node] = []
-    loader = Loader(stream)
+    loader = loader_cls(stream)
 
     try:
         while loader._constructor.check_data():
@@ -336,7 +337,7 @@ here in order to ease extension when needed.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L126-L133" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L83-L90" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Loader(  # pylint: disable=abstract-method,too-many-ancestors
     _yaml.SafeLoader,  # type: ignore
@@ -358,6 +359,10 @@ here in order to ease extension when needed.</p>
 <li>ruamel.yaml.constructor.BaseConstructor</li>
 <li>ruamel.yaml.resolver.VersionedResolver</li>
 <li>ruamel.yaml.resolver.BaseResolver</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="metaloaders.cloudformation.Loader" href="cloudformation.html#metaloaders.cloudformation.Loader">Loader</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>

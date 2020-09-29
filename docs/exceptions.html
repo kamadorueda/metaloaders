@@ -26,13 +26,17 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/exceptions.py#L0-L4" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/exceptions.py#L0-L8" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Exceptions raised by this package.&#34;&#34;&#34;
 
 
 class MetaloaderError(Exception):
-    &#34;&#34;&#34;Base exception for all errors within this package.&#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;Base exception for all errors within this package.&#34;&#34;&#34;
+
+
+class MetaloaderNotImplemented(MetaloaderError):
+    &#34;&#34;&#34;Something is yet not implemented in the library.&#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -63,6 +67,31 @@ class MetaloaderError(Exception):
 <li>builtins.Exception</li>
 <li>builtins.BaseException</li>
 </ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="metaloaders.exceptions.MetaloaderNotImplemented" href="#metaloaders.exceptions.MetaloaderNotImplemented">MetaloaderNotImplemented</a></li>
+</ul>
+</dd>
+<dt id="metaloaders.exceptions.MetaloaderNotImplemented"><code class="flex name class">
+<span>class <span class="ident">MetaloaderNotImplemented</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Something is yet not implemented in the library.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/exceptions.py#L8-L9" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MetaloaderNotImplemented(MetaloaderError):
+    &#34;&#34;&#34;Something is yet not implemented in the library.&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="metaloaders.exceptions.MetaloaderError" href="#metaloaders.exceptions.MetaloaderError">MetaloaderError</a></li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -82,6 +111,9 @@ class MetaloaderError(Exception):
 <ul>
 <li>
 <h4><code><a title="metaloaders.exceptions.MetaloaderError" href="#metaloaders.exceptions.MetaloaderError">MetaloaderError</a></code></h4>
+</li>
+<li>
+<h4><code><a title="metaloaders.exceptions.MetaloaderNotImplemented" href="#metaloaders.exceptions.MetaloaderNotImplemented">MetaloaderNotImplemented</a></code></h4>
 </li>
 </ul>
 </li>
