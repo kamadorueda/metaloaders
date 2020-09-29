@@ -110,10 +110,10 @@ def load(stream: str) -> Node:
         return Node(
             data=items,
             data_type=Type.ARRAY,
-            end_column=items[-1].end_mark.column,
-            end_line=items[-1].end_mark.line,
-            start_column=items[0].start_mark.column,
-            start_line=items[0].start_mark.line,
+            end_column=items[-1].end_column,
+            end_line=items[-1].end_line,
+            start_column=items[0].start_column,
+            start_line=items[0].start_line,
         )
     finally:
         loader._parser.dispose()
