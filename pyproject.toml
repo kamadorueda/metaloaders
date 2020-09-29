@@ -28,6 +28,7 @@ version = "1.0.0"
 [tool.poetry.dependencies]
 lark-parser = "*"
 python = "^3.6"
+"ruamel.yaml" = "*"
 
 [tool.poetry.dev-dependencies]
 bandit = "1.6.2"

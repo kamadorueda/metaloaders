@@ -174,9 +174,9 @@ GRAMMAR = r&#34;&#34;&#34;
 
 
 def load(stream: str) -&gt; Node:
-    &#34;&#34;&#34;Loads a string representation of a JSON document as an `Node` class.
+    &#34;&#34;&#34;Loads a string representation of a document.
 
-    Raises `MetaloaderError` if any parsing error occur.
+    Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
     &#34;&#34;&#34;
     parser = lark.Lark(
         grammar=GRAMMAR,
@@ -251,17 +251,17 @@ def _simplify(obj: Any) -&gt; Any:
 <span>def <span class="ident">load</span></span>(<span>stream: str) ‑> <a title="metaloaders.model.Node" href="model.html#metaloaders.model.Node">Node</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Loads a string representation of a JSON document as an <code>Node</code> class.</p>
-<p>Raises <code>MetaloaderError</code> if any parsing error occur.</p></div>
+<div class="desc"><p>Loads a string representation of a document.</p>
+<p>Raises <code><a title="metaloaders.exceptions.MetaloaderError" href="exceptions.html#metaloaders.exceptions.MetaloaderError">MetaloaderError</a></code> if any parsing error occur.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 <a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/json.py#L99-L116" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load(stream: str) -&gt; Node:
-    &#34;&#34;&#34;Loads a string representation of a JSON document as an `Node` class.
+    &#34;&#34;&#34;Loads a string representation of a document.
 
-    Raises `MetaloaderError` if any parsing error occur.
+    Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
     &#34;&#34;&#34;
     parser = lark.Lark(
         grammar=GRAMMAR,

@@ -97,9 +97,9 @@ GRAMMAR = r"""
 
 
 def load(stream: str) -> Node:
-    """Loads a string representation of a JSON document as an `Node` class.
+    """Loads a string representation of a document.
 
-    Raises `MetaloaderError` if any parsing error occur.
+    Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
     """
     parser = lark.Lark(
         grammar=GRAMMAR,
