@@ -1,4 +1,51 @@
-"""Metaloader for YAML objects.
+"""Metaloader for YAML documents.
+
+Let's load a simple YAML document:
+
+    >>> from metaloaders import load
+
+    >>> yaml = load('test: 123')
+
+Now you can access the outer object meta-data:
+
+    >>> yaml.start_line == 1
+        yaml.end_line == 1
+        yaml.start_column == 0
+        yaml.end_column == 9
+
+As well as child objects meta-data:
+
+    >>> yaml.inner['test'] == Node(
+            data=123,
+            data_type=Type.NUMBER,
+            end_column=9,
+            end_line=1,
+            start_column=6,
+            start_line=1,
+        )
+
+Every YAML token contains all possible metadata:
+
+    >>> yaml.data == {key: val}
+        # Where:
+        #
+        # key = Node(
+        #     data='test',
+        #     data_type=Type.STRING,
+        #     end_column=4,
+        #     end_line=1,
+        #     start_column=0,
+        #     start_line=1,
+        # )
+        #
+        # val = Node(
+        #     data=123,
+        #     data_type=Type.NUMBER,
+        #     end_column=9,
+        #     end_line=1,
+        #     start_column=6,
+        #     start_line=1,
+        # )
 """
 
 # Standard library
