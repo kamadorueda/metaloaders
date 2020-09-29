@@ -215,10 +215,10 @@ def _simplify(obj: Any) -&gt; Any:
             data_type = Type.NULL
         elif obj.data == &#39;true&#39;:
             data = True
-            data_type = Type.TRUE
+            data_type = Type.BOOLEAN
         elif obj.data == &#39;false&#39;:
             data = False
-            data_type = Type.FALSE
+            data_type = Type.BOOLEAN
         elif obj.data == &#39;string&#39;:
             data = ast.literal_eval(obj.children[0].value)  # type: ignore
             data_type = Type.STRING

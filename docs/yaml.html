@@ -26,10 +26,121 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L1" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L112" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Metaloader for YAML objects.
-&#34;&#34;&#34;</code></pre>
+&#34;&#34;&#34;
+
+# Standard library
+from collections.abc import (
+    Generator,
+)
+from contextlib import (
+    suppress,
+)
+from functools import (
+    wraps as mimic_function,
+)
+from typing import (
+    Any,
+    Callable,
+    List,
+)
+
+# Third party library
+from ruamel import (
+    yaml as _yaml,
+)
+
+# Local libraries
+from metaloaders.model import (
+    Node,
+    Type,
+)
+from metaloaders.exceptions import (
+    MetaloaderError,
+)
+
+
+def load(stream: str) -&gt; List[Node]:
+    &#34;&#34;&#34;Loads a string representation of a document.
+
+    Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
+    &#34;&#34;&#34;
+    # pylint: disable=protected-access
+    items: List[Node] = []
+    loader = Loader(stream)
+
+    try:
+        while loader._constructor.check_data():
+            items.append(loader._constructor.get_data())
+    except _yaml.YAMLError as exc:  # type: ignore
+        raise MetaloaderError(f&#39;Unable to parse stream: {exc}&#39;)
+    else:
+        return items
+    finally:
+        loader._parser.dispose()
+        with suppress(AttributeError):
+            loader._reader.reset_reader()
+        with suppress(AttributeError):
+            loader._scanner.reset_scanner()
+
+
+class Loader(  # pylint: disable=abstract-method,too-many-ancestors
+    _yaml.SafeLoader,  # type: ignore
+):
+    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.&#34;&#34;&#34;
+
+
+def _factory(constructor: str, data_type: Type) -&gt; Callable[..., Node]:
+
+    constructor_func = getattr(Loader, f&#39;construct_{constructor}&#39;)
+
+    @mimic_function(constructor_func)
+    def wrapper(
+        self: Loader,
+        node: _yaml.Node,  # type: ignore
+        *args: Any,
+        **kwargs: Any,
+    ) -&gt; Node:
+        result = constructor_func(self, node, *args, **kwargs)
+
+        if isinstance(result, Generator):
+            result = tuple(result)
+            result = result[0] if len(result) == 1 else result
+
+        return Node(
+            data=result,
+            data_type=data_type,
+            end_column=node.end_mark.column,
+            end_line=node.end_mark.line,
+            start_column=node.start_mark.column,
+            start_line=node.start_mark.line,
+        )
+
+    return wrapper
+
+
+def _override() -&gt; None:
+    for data_type, constructor, tag in [
+        (Type.ARRAY, &#39;yaml_pairs&#39;, &#39;tag:yaml.org,2002:pairs&#39;),
+        (Type.ARRAY, &#39;yaml_set&#39;, &#39;tag:yaml.org,2002:set&#39;),
+        (Type.ARRAY, &#39;yaml_seq&#39;, &#39;tag:yaml.org,2002:seq&#39;),
+        (Type.BINARY, &#39;yaml_binary&#39;, &#39;tag:yaml.org,2002:binary&#39;),
+        (Type.BOOLEAN, &#39;yaml_bool&#39;, &#39;tag:yaml.org,2002:bool&#39;),
+        (Type.DATETIME, &#39;yaml_timestamp&#39;, &#39;tag:yaml.org,2002:timestamp&#39;),
+        (Type.NULL, &#39;yaml_null&#39;, &#39;tag:yaml.org,2002:null&#39;),
+        (Type.NUMBER, &#39;yaml_int&#39;, &#39;tag:yaml.org,2002:int&#39;),
+        (Type.NUMBER, &#39;yaml_float&#39;, &#39;tag:yaml.org,2002:float&#39;),
+        (Type.OBJECT, &#39;yaml_omap&#39;, &#39;tag:yaml.org,2002:omap&#39;),
+        (Type.OBJECT, &#39;yaml_map&#39;, &#39;tag:yaml.org,2002:map&#39;),
+        (Type.STRING, &#39;yaml_str&#39;, &#39;tag:yaml.org,2002:str&#39;),
+    ]:
+        Loader.add_constructor(tag, _factory(constructor, data_type))
+
+
+# Side effects
+_override()</code></pre>
 </details>
 </section>
 <section>
@@ -37,8 +148,86 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="metaloaders.yaml.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>stream: str) ‑> List[<a title="metaloaders.model.Node" href="model.html#metaloaders.model.Node">Node</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loads a string representation of a document.</p>
+<p>Raises <code><a title="metaloaders.exceptions.MetaloaderError" href="exceptions.html#metaloaders.exceptions.MetaloaderError">MetaloaderError</a></code> if any parsing error occur.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L35-L56" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def load(stream: str) -&gt; List[Node]:
+    &#34;&#34;&#34;Loads a string representation of a document.
+
+    Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
+    &#34;&#34;&#34;
+    # pylint: disable=protected-access
+    items: List[Node] = []
+    loader = Loader(stream)
+
+    try:
+        while loader._constructor.check_data():
+            items.append(loader._constructor.get_data())
+    except _yaml.YAMLError as exc:  # type: ignore
+        raise MetaloaderError(f&#39;Unable to parse stream: {exc}&#39;)
+    else:
+        return items
+    finally:
+        loader._parser.dispose()
+        with suppress(AttributeError):
+            loader._reader.reset_reader()
+        with suppress(AttributeError):
+            loader._scanner.reset_scanner()</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="metaloaders.yaml.Loader"><code class="flex name class">
+<span>class <span class="ident">Loader</span></span>
+<span>(</span><span>stream, version=None, preserve_quotes=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>YAML loader with overridden constructors that propagate positions.</p>
+<p>Initialize the scanner.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L59-L62" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Loader(  # pylint: disable=abstract-method,too-many-ancestors
+    _yaml.SafeLoader,  # type: ignore
+):
+    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>ruamel.yaml.loader.SafeLoader</li>
+<li>ruamel.yaml.reader.Reader</li>
+<li>ruamel.yaml.scanner.Scanner</li>
+<li>ruamel.yaml.parser.Parser</li>
+<li>ruamel.yaml.composer.Composer</li>
+<li>ruamel.yaml.constructor.SafeConstructor</li>
+<li>ruamel.yaml.constructor.BaseConstructor</li>
+<li>ruamel.yaml.resolver.VersionedResolver</li>
+<li>ruamel.yaml.resolver.BaseResolver</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="metaloaders.yaml.Loader.yaml_constructors"><code class="name">var <span class="ident">yaml_constructors</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -50,6 +239,21 @@
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="metaloaders" href="index.html">metaloaders</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="metaloaders.yaml.load" href="#metaloaders.yaml.load">load</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="metaloaders.yaml.Loader" href="#metaloaders.yaml.Loader">Loader</a></code></h4>
+<ul class="">
+<li><code><a title="metaloaders.yaml.Loader.yaml_constructors" href="#metaloaders.yaml.Loader.yaml_constructors">yaml_constructors</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

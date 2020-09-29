@@ -26,7 +26,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L0-L71" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L0-L72" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Collection of objects returned by the different loaders.&#34;&#34;&#34;
 
@@ -44,8 +44,12 @@ class Type(Enum):
     &#34;&#34;&#34;Enumeration for all possible `Node` data types.&#34;&#34;&#34;
     ARRAY: str = &#39;ARRAY&#39;
     &#34;&#34;&#34;Indicates an array data-type: Example: `[]`&#34;&#34;&#34;
-    FALSE: str = &#39;FALSE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `false`&#34;&#34;&#34;
+    BOOLEAN: str = &#39;BOOLEAN&#39;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;
+    BINARY: str = &#39;BINARY&#39;
+    &#34;&#34;&#34;Indicates a binary data-type: Example: b&#39;true&#39;&#34;&#34;&#34;
+    DATETIME: str = &#39;DATETIME&#39;
+    &#34;&#34;&#34;Indicates a datetime data-type: Example: datetime(2020, 12, 31)&#34;&#34;&#34;
     NUMBER: str = &#39;NUMBER&#39;
     &#34;&#34;&#34;Indicates a numeric data-type: Example: `123.4`&#34;&#34;&#34;
     NULL: str = &#39;NULL&#39;
@@ -54,8 +58,6 @@ class Type(Enum):
     &#34;&#34;&#34;Indicates an object data-type: Example: `{}`&#34;&#34;&#34;
     STRING: str = &#39;STRING&#39;
     &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
-    TRUE: str = &#39;TRUE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;
 
 
 class Node(NamedTuple):
@@ -91,8 +93,7 @@ class Node(NamedTuple):
         elif self.data_type in {
             Type.NULL,
             Type.NUMBER,
-            Type.FALSE,
-            Type.TRUE,
+            Type.BOOLEAN,
             Type.STRING,
         }:
             data = self.data
@@ -120,14 +121,18 @@ class Node(NamedTuple):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L13-L28" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L13-L30" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Type(Enum):
     &#34;&#34;&#34;Enumeration for all possible `Node` data types.&#34;&#34;&#34;
     ARRAY: str = &#39;ARRAY&#39;
     &#34;&#34;&#34;Indicates an array data-type: Example: `[]`&#34;&#34;&#34;
-    FALSE: str = &#39;FALSE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `false`&#34;&#34;&#34;
+    BOOLEAN: str = &#39;BOOLEAN&#39;
+    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;
+    BINARY: str = &#39;BINARY&#39;
+    &#34;&#34;&#34;Indicates a binary data-type: Example: b&#39;true&#39;&#34;&#34;&#34;
+    DATETIME: str = &#39;DATETIME&#39;
+    &#34;&#34;&#34;Indicates a datetime data-type: Example: datetime(2020, 12, 31)&#34;&#34;&#34;
     NUMBER: str = &#39;NUMBER&#39;
     &#34;&#34;&#34;Indicates a numeric data-type: Example: `123.4`&#34;&#34;&#34;
     NULL: str = &#39;NULL&#39;
@@ -135,9 +140,7 @@ class Node(NamedTuple):
     OBJECT: str = &#39;OBJECT&#39;
     &#34;&#34;&#34;Indicates an object data-type: Example: `{}`&#34;&#34;&#34;
     STRING: str = &#39;STRING&#39;
-    &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;
-    TRUE: str = &#39;TRUE&#39;
-    &#34;&#34;&#34;Indicates a boolean data-type: Example: `true`&#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;Indicates a string data-type: Example: `&#34;example&#34;`&#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -149,9 +152,17 @@ class Node(NamedTuple):
 <dd>
 <div class="desc"><p>Indicates an array data-type: Example: <code>[]</code></p></div>
 </dd>
-<dt id="metaloaders.model.Type.FALSE"><code class="name">var <span class="ident">FALSE</span> : str</code></dt>
+<dt id="metaloaders.model.Type.BOOLEAN"><code class="name">var <span class="ident">BOOLEAN</span> : str</code></dt>
 <dd>
-<div class="desc"><p>Indicates a boolean data-type: Example: <code>false</code></p></div>
+<div class="desc"><p>Indicates a boolean data-type: Example: <code>true</code></p></div>
+</dd>
+<dt id="metaloaders.model.Type.BINARY"><code class="name">var <span class="ident">BINARY</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Indicates a binary data-type: Example: b'true'</p></div>
+</dd>
+<dt id="metaloaders.model.Type.DATETIME"><code class="name">var <span class="ident">DATETIME</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Indicates a datetime data-type: Example: datetime(2020, 12, 31)</p></div>
 </dd>
 <dt id="metaloaders.model.Type.NUMBER"><code class="name">var <span class="ident">NUMBER</span> : str</code></dt>
 <dd>
@@ -169,10 +180,6 @@ class Node(NamedTuple):
 <dd>
 <div class="desc"><p>Indicates a string data-type: Example: <code>"example"</code></p></div>
 </dd>
-<dt id="metaloaders.model.Type.TRUE"><code class="name">var <span class="ident">TRUE</span> : str</code></dt>
-<dd>
-<div class="desc"><p>Indicates a boolean data-type: Example: <code>true</code></p></div>
-</dd>
 </dl>
 </dd>
 <dt id="metaloaders.model.Node"><code class="flex name class">
@@ -184,7 +191,7 @@ class Node(NamedTuple):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L31-L72" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L33-L73" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Node(NamedTuple):
     &#34;&#34;&#34;Represents any JSON token and its metadata.&#34;&#34;&#34;
@@ -219,8 +226,7 @@ class Node(NamedTuple):
         elif self.data_type in {
             Type.NULL,
             Type.NUMBER,
-            Type.FALSE,
-            Type.TRUE,
+            Type.BOOLEAN,
             Type.STRING,
         }:
             data = self.data
@@ -271,7 +277,7 @@ class Node(NamedTuple):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L46-L72" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/model.py#L48-L73" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@property
 def inner(self) -&gt; Any:
@@ -291,8 +297,7 @@ def inner(self) -&gt; Any:
     elif self.data_type in {
         Type.NULL,
         Type.NUMBER,
-        Type.FALSE,
-        Type.TRUE,
+        Type.BOOLEAN,
         Type.STRING,
     }:
         data = self.data
@@ -324,12 +329,13 @@ def inner(self) -&gt; Any:
 <h4><code><a title="metaloaders.model.Type" href="#metaloaders.model.Type">Type</a></code></h4>
 <ul class="two-column">
 <li><code><a title="metaloaders.model.Type.ARRAY" href="#metaloaders.model.Type.ARRAY">ARRAY</a></code></li>
-<li><code><a title="metaloaders.model.Type.FALSE" href="#metaloaders.model.Type.FALSE">FALSE</a></code></li>
+<li><code><a title="metaloaders.model.Type.BOOLEAN" href="#metaloaders.model.Type.BOOLEAN">BOOLEAN</a></code></li>
+<li><code><a title="metaloaders.model.Type.BINARY" href="#metaloaders.model.Type.BINARY">BINARY</a></code></li>
+<li><code><a title="metaloaders.model.Type.DATETIME" href="#metaloaders.model.Type.DATETIME">DATETIME</a></code></li>
 <li><code><a title="metaloaders.model.Type.NUMBER" href="#metaloaders.model.Type.NUMBER">NUMBER</a></code></li>
 <li><code><a title="metaloaders.model.Type.NULL" href="#metaloaders.model.Type.NULL">NULL</a></code></li>
 <li><code><a title="metaloaders.model.Type.OBJECT" href="#metaloaders.model.Type.OBJECT">OBJECT</a></code></li>
 <li><code><a title="metaloaders.model.Type.STRING" href="#metaloaders.model.Type.STRING">STRING</a></code></li>
-<li><code><a title="metaloaders.model.Type.TRUE" href="#metaloaders.model.Type.TRUE">TRUE</a></code></li>
 </ul>
 </li>
 <li>
