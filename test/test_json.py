@@ -16,7 +16,7 @@ from metaloaders.json import (
 )
 
 
-def test_metaloaders_load_1() -> None:
+def test_load_1() -> None:
     assert load("""
         "x"
     """) == Node(
@@ -29,7 +29,7 @@ def test_metaloaders_load_1() -> None:
     )
 
 
-def test_metaloaders_load_2() -> None:
+def test_load_2() -> None:
     data: Any = {
         'a': 123,
         'b': True,
@@ -89,7 +89,7 @@ def test_metaloaders_load_2() -> None:
                                                 start_line=7,
                                             ): Node(
                                                 data=True,
-                                                data_type=Type.TRUE,
+                                                data_type=Type.BOOLEAN,
                                                 end_column=19,
                                                 end_line=7,
                                                 start_column=15,
@@ -162,7 +162,7 @@ def test_metaloaders_load_2() -> None:
     )
 
 
-def test_metaloaders_load_3() -> None:
+def test_load_3() -> None:
     stream = textwrap.dedent("""
     {
         "test": 123

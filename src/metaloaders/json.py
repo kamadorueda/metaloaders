@@ -1,4 +1,4 @@
-"""Metaloader for JSON objects.
+"""Metaloader for JSON documents.
 
 Let's load a simple JSON document:
 

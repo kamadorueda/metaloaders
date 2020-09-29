@@ -32,7 +32,7 @@ from metaloaders.exceptions import (
 )
 
 
-def load(stream: str) -> List[Node]:
+def load(stream: str) -> Node:
     """Loads a string representation of a document.
 
     Raises `metaloaders.exceptions.MetaloaderError` if any parsing error occur.
@@ -47,7 +47,27 @@ def load(stream: str) -> List[Node]:
     except _yaml.YAMLError as exc:  # type: ignore
         raise MetaloaderError(f'Unable to parse stream: {exc}')
     else:
-        return items
+        if len(items) == 0:
+            return Node(
+                data=None,
+                data_type=Type.NULL,
+                end_column=0,
+                end_line=1,
+                start_column=0,
+                start_line=1,
+            )
+
+        if len(items) == 1:
+            return items[0]
+
+        return Node(
+            data=items,
+            data_type=Type.ARRAY,
+            end_column=items[-1].end_mark.column,
+            end_line=items[-1].end_mark.line,
+            start_column=items[0].start_mark.column,
+            start_line=items[0].start_mark.line,
+        )
     finally:
         loader._parser.dispose()
         with suppress(AttributeError):
@@ -83,9 +103,9 @@ def _factory(constructor: str, data_type: Type) -> Callable[..., Node]:
             data=result,
             data_type=data_type,
             end_column=node.end_mark.column,
-            end_line=node.end_mark.line,
+            end_line=node.end_mark.line + 1,
             start_column=node.start_mark.column,
-            start_line=node.start_mark.line,
+            start_line=node.start_mark.line + 1,
         )
 
     return wrapper
