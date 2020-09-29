@@ -95,9 +95,14 @@ def test_load_1() -> None:
                         end_line=7,
                         start_column=8,
                         start_line=7,
-                    ): {
-                        'Ref': 'AWS::StackName',
-                    },
+                    ): Node(
+                        data={'Ref': 'AWS::StackName'},
+                        data_type=Type.OBJECT,
+                        end_column=53,
+                        end_line=7,
+                        start_column=32,
+                        start_line=7,
+                    ),
                     Node(
                         data='Tags',
                         data_type=Type.STRING,
@@ -131,36 +136,50 @@ def test_load_1() -> None:
                                         end_line=10,
                                         start_column=16,
                                         start_line=10,
-                                    ): {
-                                        'Fn::Join': [
-                                            Node(
-                                                data='',
-                                                data_type=Type.STRING,
-                                                end_column=32,
-                                                end_line=10,
-                                                start_column=30,
-                                                start_line=10,
-                                            ),
-                                            Node(
-                                                data=[
-                                                    {'Ref': 'AWS::StackName'},
-                                                    Node(
-                                                        data='-option-group',
-                                                        data_type=Type.STRING,
-                                                        end_column=74,
-                                                        end_line=10,
-                                                        start_column=59,
-                                                        start_line=10,
-                                                    ),
-                                                ],
-                                                data_type=Type.ARRAY,
-                                                end_column=75,
-                                                end_line=10,
-                                                start_column=34,
-                                                start_line=10,
-                                            ),
-                                        ],
-                                    },
+                                    ): Node(
+                                        data={
+                                            'Fn::Join': [
+                                                Node(
+                                                    data='',
+                                                    data_type=Type.STRING,
+                                                    end_column=32,
+                                                    end_line=10,
+                                                    start_column=30,
+                                                    start_line=10,
+                                                ),
+                                                Node(
+                                                    data=[
+                                                        Node(
+                                                            data={'Ref': 'AWS::StackName'},
+                                                            data_type=Type.OBJECT,
+                                                            end_column=56,
+                                                            end_line=10,
+                                                            start_column=35,
+                                                            start_line=10,
+                                                        ),
+                                                        Node(
+                                                            data='-option-group',
+                                                            data_type=Type.STRING,
+                                                            end_column=74,
+                                                            end_line=10,
+                                                            start_column=59,
+                                                            start_line=10,
+                                                        ),
+                                                    ],
+                                                    data_type=Type.ARRAY,
+                                                    end_column=75,
+                                                    end_line=10,
+                                                    start_column=34,
+                                                    start_line=10,
+                                                ),
+                                            ],
+                                        },
+                                        data_type=Type.OBJECT,
+                                        end_column=76,
+                                        end_line=10,
+                                        start_column=23,
+                                        start_line=10,
+                                    ),
                                 },
                                 data_type=Type.OBJECT,
                                 end_column=8,

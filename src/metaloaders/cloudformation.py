@@ -18,6 +18,7 @@ from metaloaders.exceptions import (
 )
 from metaloaders.model import (
     Node,
+    Type,
 )
 from metaloaders.yaml import (
     Loader as YAMLLoader,
@@ -65,9 +66,14 @@ def _multi_constructor(
     else:
         raise MetaloaderNotImplemented(f'Bad tag: !{tag_suffix}')
 
-    return {
-        tag_suffix: constructor(node),
-    }
+    return Node(
+        data={tag_suffix: constructor(node)},
+        data_type=Type.OBJECT,
+        end_column=node.end_mark.column,
+        end_line=node.end_mark.line + 1,
+        start_column=node.start_mark.column,
+        start_line=node.start_mark.line + 1,
+    )
 
 
 def construct_getatt(

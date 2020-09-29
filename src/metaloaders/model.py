@@ -64,3 +64,13 @@ class Node(NamedTuple):
             data = self.data
 
         return data
+
+    def __repr__(self) -> str:
+        return f"""Node(
+            data={self.data},
+            data_type={self.data_type},
+            end_column={self.end_column},
+            end_line={self.end_line},
+            start_column={self.start_column},
+            start_line={self.start_line},
+        )"""
