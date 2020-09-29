@@ -28,6 +28,8 @@ def test_load_1() -> None:
                         Value: !Join ["", [!Ref 'AWS::StackName' , "-option-group"]]
                 X: true
                 Y: null
+                # Z: !GetAtt logicalNameOfResource.attributeName
+                # Fn::GetAtt: [ logicalNameOfResource, attributeName ]
     """)
 
     template = load(stream, 'yaml')
@@ -227,14 +229,14 @@ def test_load_1() -> None:
                 },
                 data_type=Type.OBJECT,
                 end_column=0,
-                end_line=13,
+                end_line=15,
                 start_column=8,
                 start_line=4,
             ),
         },
         data_type=Type.OBJECT,
         end_column=0,
-        end_line=13,
+        end_line=15,
         start_column=4,
         start_line=3,
     )
