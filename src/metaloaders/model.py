@@ -14,8 +14,12 @@ class Type(Enum):
     """Enumeration for all possible `Node` data types."""
     ARRAY: str = 'ARRAY'
     """Indicates an array data-type: Example: `[]`"""
-    FALSE: str = 'FALSE'
-    """Indicates a boolean data-type: Example: `false`"""
+    BOOLEAN: str = 'BOOLEAN'
+    """Indicates a boolean data-type: Example: `true`"""
+    BINARY: str = 'BINARY'
+    """Indicates a binary data-type: Example: b'true'"""
+    DATETIME: str = 'DATETIME'
+    """Indicates a datetime data-type: Example: datetime(2020, 12, 31)"""
     NUMBER: str = 'NUMBER'
     """Indicates a numeric data-type: Example: `123.4`"""
     NULL: str = 'NULL'
@@ -24,8 +28,6 @@ class Type(Enum):
     """Indicates an object data-type: Example: `{}`"""
     STRING: str = 'STRING'
     """Indicates a string data-type: Example: `"example"`"""
-    TRUE: str = 'TRUE'
-    """Indicates a boolean data-type: Example: `true`"""
 
 
 class Node(NamedTuple):
@@ -61,8 +63,7 @@ class Node(NamedTuple):
         elif self.data_type in {
             Type.NULL,
             Type.NUMBER,
-            Type.FALSE,
-            Type.TRUE,
+            Type.BOOLEAN,
             Type.STRING,
         }:
             data = self.data
