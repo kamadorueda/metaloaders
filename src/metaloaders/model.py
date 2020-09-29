@@ -60,14 +60,7 @@ class Node(NamedTuple):
             data = [val.data for val in self.data]
         elif self.data_type is Type.OBJECT:
             data = {key.data: val for key, val in self.data.items()}
-        elif self.data_type in {
-            Type.NULL,
-            Type.NUMBER,
-            Type.BOOLEAN,
-            Type.STRING,
-        }:
-            data = self.data
         else:
-            raise NotImplementedError()
+            data = self.data
 
         return data
