@@ -126,7 +126,11 @@ def load(stream: str) -> Node:
 class Loader(  # pylint: disable=abstract-method,too-many-ancestors
     _yaml.SafeLoader,  # type: ignore
 ):
-    """YAML loader with overridden constructors that propagate positions."""
+    """YAML loader with overridden constructors that propagate positions.
+
+    In normal circumstances you should not use this directly, but it is left
+    here in order to ease extension when needed.
+    """
 
 
 def _factory(constructor: str, data_type: Type) -> Callable[..., Node]:

@@ -69,7 +69,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L179" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L0-L183" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Metaloader for YAML documents.
 
@@ -199,7 +199,11 @@ def load(stream: str) -&gt; Node:
 class Loader(  # pylint: disable=abstract-method,too-many-ancestors
     _yaml.SafeLoader,  # type: ignore
 ):
-    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.&#34;&#34;&#34;
+    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.
+
+    In normal circumstances you should not use this directly, but it is left
+    here in order to ease extension when needed.
+    &#34;&#34;&#34;
 
 
 def _factory(constructor: str, data_type: Type) -&gt; Callable[..., Node]:
@@ -326,16 +330,22 @@ _override()</code></pre>
 </code></dt>
 <dd>
 <div class="desc"><p>YAML loader with overridden constructors that propagate positions.</p>
+<p>In normal circumstances you should not use this directly, but it is left
+here in order to ease extension when needed.</p>
 <p>Initialize the scanner.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L126-L129" class="git-link">Browse git</a>
+<a href="https://github.com/kamadorueda/metaloaders/blob/latest/src/metaloaders/yaml.py#L126-L133" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Loader(  # pylint: disable=abstract-method,too-many-ancestors
     _yaml.SafeLoader,  # type: ignore
 ):
-    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.&#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34;YAML loader with overridden constructors that propagate positions.
+
+    In normal circumstances you should not use this directly, but it is left
+    here in order to ease extension when needed.
+    &#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
