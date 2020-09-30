@@ -65,6 +65,20 @@ class Node(NamedTuple):
 
         return data
 
+    @property
+    def raw(self) -> Any:
+        """Access the wrapped data by this `Node`, recursing into sub-objects.
+        """
+        data: Any
+        if self.data_type is Type.ARRAY:
+            data = [val.raw for val in self.data]
+        elif self.data_type is Type.OBJECT:
+            data = {key.raw: val.raw for key, val in self.data.items()}
+        else:
+            data = self.data
+
+        return data
+
     def __repr__(self) -> str:
         return f"""Node(
             data={self.data},

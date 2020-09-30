@@ -201,3 +201,9 @@ def test_load_3() -> None:
         start_line=3,
     )
     assert json.data == {key: data}
+
+
+def test_load_4() -> None:
+    raw = [{'a': [123, {'b': None}]}]
+    json = load(dump(raw))
+    assert json.raw == raw
